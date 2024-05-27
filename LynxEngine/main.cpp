@@ -8,8 +8,9 @@ int main()
 	while (window.isOpen())
 	{
 		window.handleEvents();
-		window.clear();
 
+		window.clear();
+		
 		window.display();
 	}
 

@@ -38,4 +38,38 @@ namespace lynx
 			}
 		}
 	}
+
+	void LynxWindow::drawCircle(float cx, float cy, float radius, sf::Color ocolor, sf::Color fcolor)
+	{
+		sf::CircleShape circle;
+		circle.setPosition(cx, cy);
+		circle.setOrigin(radius, radius);
+		circle.setRadius(radius);
+		circle.setOutlineThickness(-1.f);
+		circle.setOutlineColor(ocolor);
+		circle.setFillColor(fcolor);
+		this->draw(circle);
+	}
+
+	void LynxWindow::drawRectangle(float cx, float cy, float dx, float dy, float rotation, sf::Color ocolor, sf::Color fcolor)
+	{
+		sf::RectangleShape rect;
+		rect.setPosition(cx, cy);
+		rect.setOrigin(dx, dy);
+		rect.setSize(2.f * sf::Vector2f(dx, dy));
+		rect.setRotation(rotation);
+		rect.setOutlineThickness(-1.f);
+		rect.setOutlineColor(ocolor);
+		rect.setFillColor(fcolor);
+		this->draw(rect);
+	}
+
+	void LynxWindow::drawLine(float x1, float y1, float x2, float y2, sf::Color color)
+	{
+		sf::Vertex line[2];
+		line[0].color = line[1].color = color;
+		line[0] = sf::Vector2f(x1, y1);
+		line[1] = sf::Vector2f(x2, y2);
+		this->draw(line, 2, sf::Lines);
+	}
 }
