@@ -17,6 +17,8 @@ namespace lynx
 		void drawCircle(float cx, float cy, float radius, sf::Color ocolor = sf::Color::White, sf::Color fcolor = sf::Color::Transparent);
 		void drawRectangle(float cx, float cy, float dx, float dy, float rotation = 0.f, sf::Color ocolor = sf::Color::White, sf::Color fcolor = sf::Color::Transparent);
 		void drawLine(float x1, float y1, float x2, float y2, sf::Color color = sf::Color::White);
+
+		sf::Vector2f getRelMousePos();
 	private:
 		std::unordered_map<sf::Event::EventType, std::list<std::function<void(sf::Event)>>> m_events_handlers;
 	};

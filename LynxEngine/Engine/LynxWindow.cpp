@@ -72,4 +72,9 @@ namespace lynx
 		line[1] = sf::Vector2f(x2, y2);
 		this->draw(line, 2, sf::Lines);
 	}
+
+	sf::Vector2f LynxWindow::getRelMousePos()
+	{
+		return (sf::Vector2f)sf::Mouse::getPosition(*this);
+	}
 }

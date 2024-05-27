@@ -136,19 +136,22 @@
     <ClCompile Include="Engine\LynxWindow.cpp" />
     <ClCompile Include="Math\LynxMath.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Physics\Collision\Collider.cpp" />
     <ClCompile Include="Physics\Collision\Shapes\CollisionBox.cpp" />
     <ClCompile Include="Physics\Collision\Shapes\CollisionCircle.cpp" />
     <ClCompile Include="Physics\Collision\Shapes\CollisionShape.cpp" />
-    <ClCompile Include="Physics\RigidBody\RigidBody.cpp" />
+    <ClCompile Include="Physics\Collision\RigidBody.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\LynxWindow.hpp" />
+    <ClInclude Include="Engine\Types.hpp" />
     <ClInclude Include="Math\LynxMath.hpp" />
+    <ClInclude Include="Physics\Collision\Collider.hpp" />
     <ClInclude Include="Physics\Collision\CollisionShapes.hpp" />
     <ClInclude Include="Physics\Collision\Shapes\CollisionBox.hpp" />
     <ClInclude Include="Physics\Collision\Shapes\CollisionCircle.hpp" />
     <ClInclude Include="Physics\Collision\Shapes\CollisionShape.hpp" />
-    <ClInclude Include="Physics\RigidBody\RigidBody.hpp" />
+    <ClInclude Include="Physics\Collision\RigidBody.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

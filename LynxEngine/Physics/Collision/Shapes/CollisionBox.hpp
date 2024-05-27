@@ -1,16 +1,17 @@
 #pragma once
 #include "CollisionShape.hpp"
-#include <SFML/System/Vector2.hpp>
+#include "Engine/Types.hpp"
 
 namespace lynx
 {
 	class CollisionBox : public CollisionShape
 	{
 	public:
-		CollisionBox(sf::Vector2f size = { 1.f, 1.f });
-		void setSize(sf::Vector2f size);
-		sf::Vector2f getSize();
+		CollisionBox(Vector2 size = { 1.f, 1.f });
+		void setSize(Vector2 size);
+		Vector2 getSize();
+		void calcBoxVertices(Vector2 vertices[4], Transform t);
 	private:
-		sf::Vector2f m_size;
+		Vector2 m_size;
 	};
 }

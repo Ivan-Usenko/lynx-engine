@@ -1,19 +1,29 @@
 #include "CollisionBox.hpp"
 
+
 namespace lynx
 {
-	CollisionBox::CollisionBox(sf::Vector2f size) : CollisionShape(Box)
+	CollisionBox::CollisionBox(Vector2 size) : CollisionShape(Box)
 	{
 		m_size = size;
 	}
 
-	void CollisionBox::setSize(sf::Vector2f size)
+	void CollisionBox::setSize(Vector2 size)
 	{
 		m_size = size;
 	}
 
-	sf::Vector2f CollisionBox::getSize()
+	Vector2 CollisionBox::getSize()
 	{
 		return m_size;
+	}
+
+	void CollisionBox::calcBoxVertices(Vector2 vertices[4], Transform t)
+	{
+		sf::Transform mx = t.getTransform();
+		vertices[0] = mx.transformPoint(-m_size);
+		vertices[1] = mx.transformPoint(m_size.x, -m_size.y);
+		vertices[2] = mx.transformPoint(m_size);
+		vertices[3] = mx.transformPoint(-m_size.x, m_size.y);
 	}
 }

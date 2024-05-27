@@ -5,37 +5,37 @@
 namespace lynx
 {
 
-	float LynxMath::magnitudeSq(sf::Vector2f vector)
+	float LynxMath::magnitudeSq(Vector2 vector)
 	{
 		return vector.x * vector.x + vector.y * vector.y;
 	}
 
-	float LynxMath::magnitude(sf::Vector2f vector)
+	float LynxMath::magnitude(Vector2 vector)
 	{
 		return sqrt(magnitudeSq(vector));
 	}
 
-	float LynxMath::distanceSq(sf::Vector2f a, sf::Vector2f b)
+	float LynxMath::distanceSq(Vector2 a, Vector2 b)
 	{
 		return magnitudeSq(a - b);
 	}
 
-	float LynxMath::distance(sf::Vector2f a, sf::Vector2f b)
+	float LynxMath::distance(Vector2 a, Vector2 b)
 	{
 		return magnitude(a - b);
 	}
 
-	sf::Vector2f LynxMath::normilize(sf::Vector2f vector)
+	Vector2 LynxMath::normilize(Vector2 vector)
 	{
 		return vector / magnitude(vector);
 	}
 
-	float LynxMath::dot(sf::Vector2f a, sf::Vector2f b)
+	float LynxMath::dot(Vector2 a, Vector2 b)
 	{
 		return a.x * b.x + a.y * b.y;
 	}
 
-	float LynxMath::cross(sf::Vector2f a, sf::Vector2f b)
+	float LynxMath::cross(Vector2 a, Vector2 b)
 	{
 		return a.x * b.y - a.y * b.x;
 	}
