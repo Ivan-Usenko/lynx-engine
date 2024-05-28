@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <list>
 #include <functional>
+#include "Engine/Types.hpp"
 
 namespace lynx
 {

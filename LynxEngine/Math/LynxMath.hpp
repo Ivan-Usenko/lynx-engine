@@ -14,5 +14,12 @@ namespace lynx
 		static float dot(Vector2 a, Vector2 b);
 		static float cross(Vector2 a, Vector2 b);
 		static float clamp(float value, float min, float max);
+		static Vector2 clamp(Vector2 value, Vector2 min, Vector2 max);
+		static Vector2 abs(Vector2 vector);
+		static Vector2 rotate(Vector2 vector, float angle, Vector2 origin = Vector2());
+		static float toRadians(float angle);
+		static float toDegrees(float angle);
+		static bool equalf(float f1, float f2, float e = 0.001f);
+		static bool equalf(Vector2 v1, Vector2 v2, float e = 0.001f);
 	};
 }

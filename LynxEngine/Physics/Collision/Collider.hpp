@@ -1,6 +1,7 @@
 #pragma once
 #include "Physics/Collision/CollisionShapes.hpp"
 #include "Engine/Types.hpp"
+#include "Engine/LynxWindow.hpp"
 
 namespace lynx
 {
@@ -14,5 +15,10 @@ namespace lynx
 	{
 	public:
 		static bool intersect(Transform t1, CollisionCircle c1, Transform t2, CollisionCircle c2, CollisionResult* result);
+		static bool intersect(Transform t1, CollisionBox b1, Transform t2, CollisionBox b2, CollisionResult* result);
+		static bool intersect(Transform t1, CollisionCircle c1, Transform t2, CollisionBox b2, CollisionResult* result);
+		static bool intersect(Transform t1, CollisionBox b1, Transform t2, CollisionCircle c2, CollisionResult* result);
+	private:
+		static void calcMinAndMaxProjections(Vector2* vertices, int v_count, Vector2 axis, float* min, float* max);
 	};
 }
