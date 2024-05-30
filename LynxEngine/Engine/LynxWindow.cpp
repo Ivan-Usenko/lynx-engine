@@ -4,6 +4,7 @@ namespace lynx
 {
 	LynxWindow::LynxWindow(sf::VideoMode mode, std::string title) : sf::RenderWindow(mode, title)
 	{
+		m_default_font.loadFromFile("C:\\Windows\\Fonts\\Consola.ttf");
 		for (int i = 0; i < sf::Event::Count; i++)
 		{
 			m_events_handlers.insert(
@@ -73,8 +74,21 @@ namespace lynx
 		this->draw(line, 2, sf::Lines);
 	}
 
+	void LynxWindow::drawLabel(std::string label, unsigned int char_size, Vector2 position, sf::Color color)
+	{
+		sf::Text text(label, m_default_font, char_size);
+		text.setPosition(position);
+		text.setFillColor(color);
+		this->draw(text);
+	}
+
 	sf::Vector2f LynxWindow::getRelMousePos()
 	{
 		return (sf::Vector2f)sf::Mouse::getPosition(*this);
+	}
+
+	sf::Font& LynxWindow::getDefaultFont()
+	{
+		return m_default_font;
 	}
 }

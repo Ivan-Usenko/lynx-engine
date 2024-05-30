@@ -3,9 +3,59 @@
 
 namespace lynx
 {
+
+	bool Collider::isBodiesCollide(RigidBody* b1, RigidBody* b2, CollisionResult* result)
+	{
+		CollisionShape* s1 = b1->getCollisionShape();
+		CollisionShape* s2 = b2->getCollisionShape();
+
+		if (s1 && s2)
+		{
+			CollisionShape::ShapeType st1 = s1->getType();
+			CollisionShape::ShapeType st2 = s2->getType();
+			Transform* t1 = b1;
+			Transform* t2 = b2;
+
+			bool is_collide = false;
+			if (st1 == CollisionShape::Circle)
+			{
+				if (st2 == CollisionShape::Circle)
+				{
+					is_collide = Collider::intersectCircles(*t1, *(CollisionCircle*)s1, *t2, *(CollisionCircle*)s2, result);
+				}
+				else if (st2 == CollisionShape::Box)
+				{
+					is_collide = Collider::intersectCircleBox(*t1, *(CollisionCircle*)s1, *t2, *(CollisionBox*)s2, result);
+				}
+			}
+			else if (st1 == CollisionShape::Box)
+			{
+				if (st2 == CollisionShape::Circle)
+				{
+					float r = Collider::intersectCircleBox(*t2, *(CollisionCircle*)s2, *t1, *(CollisionBox*)s1, result);
+					result->normal = -result->normal;
+					is_collide = r;
+				}
+				else if (st2 == CollisionShape::Box)
+				{
+					is_collide = Collider::intersectBoxes(*t1, *(CollisionBox*)s1, *t2, *(CollisionBox*)s2, result);
+				}
+			}
+
+			if (is_collide && result)
+			{
+				result->body1 = b1;
+				result->body2 = b2;
+			}
+
+			return is_collide;
+		}
+		return false;
+	}
+
 	bool Collider::intersectCircles(Transform t1, CollisionCircle c1, Transform t2, CollisionCircle c2, CollisionResult* result)
 	{
-		sf::Vector2f dir = t2.getPosition() - t1.getPosition();
+		Vector2 dir = t2.getPosition() - t1.getPosition();
 		float dist_sq = LynxMath::magnitudeSq(dir);
 		float rad_sum = c1.getRadius() + c2.getRadius();
 
@@ -134,5 +184,63 @@ namespace lynx
 			*min = fminf(*min, proj);
 			*max = fmaxf(*max, proj);
 		}
+	}
+
+	void Collider::findContactPoints(CollisionResult* result)
+	{
+		RigidBody* b1 = result->body1;
+		RigidBody* b2 = result->body2;
+		result->contact_count = 0;
+
+		if (b1 && b2)
+		{
+			CollisionShape* s1 = b1->getCollisionShape();
+			CollisionShape* s2 = b2->getCollisionShape();
+
+			if (s1 && s2)
+			{
+				CollisionShape::ShapeType type1 = s1->getType();
+				CollisionShape::ShapeType type2 = s2->getType();
+
+				if (type1 == CollisionShape::Circle)
+				{
+					if (type2 == CollisionShape::Circle)
+					{
+						findContactPointsCC(*(Transform*)b1, *(CollisionCircle*)s1, result);
+					}
+					else if (type2 == CollisionShape::Box)
+					{
+						findContactPointsCB(*(Transform*)b1, *(CollisionCircle*)s1, *(Transform*)b2, *(CollisionBox*)s2, result);
+					}
+				}
+				else if (type1 == CollisionShape::Box)
+				{
+					if (type2 == CollisionShape::Circle)
+					{
+						findContactPointsCB(*(Transform*)b2, *(CollisionCircle*)s2, *(Transform*)b1, *(CollisionBox*)s1, result);
+					}
+					else if (type2 == CollisionShape::Box)
+					{
+						findContactPointsBB(*(Transform*)b1, *(CollisionBox*)s1, *(Transform*)b2, *(CollisionBox*)s2, result);
+					}
+				}
+			}
+		}
+	}
+
+	void Collider::findContactPointsCC(Transform t1, CollisionCircle c1, CollisionResult* result)
+	{
+		result->contact_count = 1;
+		result->contact[0] = t1.getPosition() + result->normal * c1.getRadius();
+	}
+
+	void Collider::findContactPointsBB(Transform t1, CollisionBox b1, Transform t2, CollisionBox b2, CollisionResult* result)
+	{
+
+	}
+
+	void Collider::findContactPointsCB(Transform t1, CollisionCircle c1, Transform t2, CollisionBox b2, CollisionResult* result)
+	{
+
 	}
 }

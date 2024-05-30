@@ -39,6 +39,7 @@ namespace lynx
 		integrateAccel(dt);
 		integrateVelocity(dt);
 
+		std::list<Vector2> contacts;
 		std::list<RigidBody*> bodies = m_cur_scene->getBodies();
 		for (auto i = bodies.begin(); i != bodies.end(); i++)
 		{
@@ -50,16 +51,23 @@ namespace lynx
 				lynx::RigidBody* b2 = *j;
 
 				CollisionResult result;
-				if (isCollide(b1, b2, &result))
+				if (Collider::isBodiesCollide(b1, b2, &result))
 				{
-					separateBodies(b1, b2, result);
-					resolveCollision(b1, b2, result);
+					separateBodies(result);
+					Collider::findContactPoints(&result);
+
+					for (int c = 0; c < result.contact_count; c++)
+						contacts.push_back(result.contact[c]);
+
+					resolveCollision(result);
 				}
 			}
 		}
 
 		m_window.clear();
 		drawBodies();
+		for (Vector2 c : contacts) m_window.drawCircle(c.x, c.y, 3.f, sf::Color::Transparent, sf::Color::Red);
+		drawInterface();
 		m_window.display();
 	}
 
@@ -105,48 +113,15 @@ namespace lynx
 		}
 	}
 
-	bool LynxEngine::isCollide(RigidBody* b1, RigidBody* b2, CollisionResult* result)
+	void LynxEngine::drawInterface()
 	{
-		CollisionShape* s1 = b1->getCollisionShape();
-		CollisionShape* s2 = b2->getCollisionShape();
-
-		if (s1 && s2)
-		{
-			CollisionShape::ShapeType st1 = s1->getType();
-			CollisionShape::ShapeType st2 = s2->getType();
-			Transform* t1 = b1;
-			Transform* t2 = b2;
-
-			if (st1 == CollisionShape::Circle)
-			{
-				if (st2 == CollisionShape::Circle)
-				{
-					return Collider::intersectCircles(*t1, *(CollisionCircle*)s1, *t2, *(CollisionCircle*)s2, result);
-				}
-				else if (st2 == CollisionShape::Box)
-				{
-					return Collider::intersectCircleBox(*t1, *(CollisionCircle*)s1, *t2, *(CollisionBox*)s2, result);
-				}
-			}
-			else if (st1 == CollisionShape::Box)
-			{
-				if (st2 == CollisionShape::Circle)
-				{
-					float r = Collider::intersectCircleBox(*t2, *(CollisionCircle*)s2, *t1, *(CollisionBox*)s1, result);
-					result->normal = -result->normal;
-					return r;
-				}
-				else if (st2 == CollisionShape::Box)
-				{
-					return Collider::intersectBoxes(*t1, *(CollisionBox*)s1, *t2, *(CollisionBox*)s2, result);
-				}
-			}
-		}
-		return false;
+		m_window.drawLabel("DEBUG", 15u);
 	}
 
-	void LynxEngine::separateBodies(RigidBody* b1, RigidBody* b2, CollisionResult result)
+	void LynxEngine::separateBodies(const CollisionResult result)
 	{
+		RigidBody* b1 = result.body1;
+		RigidBody* b2 = result.body2;
 		float inv_mass_sum = b1->getInverseMass() + b2->getInverseMass();
 		if (inv_mass_sum > 0.f)
 		{
@@ -155,8 +130,10 @@ namespace lynx
 		}
 	}
 
-	void LynxEngine::resolveCollision(RigidBody* b1, RigidBody* b2, CollisionResult result)
+	void LynxEngine::resolveCollision(const CollisionResult result)
 	{
+		RigidBody* b1 = result.body1;
+		RigidBody* b2 = result.body2;
 		float inv_mass_sum = b1->getInverseMass() + b2->getInverseMass();
 		if (inv_mass_sum > 0.f)
 		{

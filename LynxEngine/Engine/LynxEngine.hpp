@@ -24,8 +24,8 @@ namespace lynx
 		void integrateAccel(float dt);
 		void integrateVelocity(float dt);
 		void drawBodies();
-		bool isCollide(RigidBody* b1, RigidBody* b2, CollisionResult* result);
-		void separateBodies(RigidBody* b1, RigidBody* b2, CollisionResult result);
-		void resolveCollision(RigidBody* b1, RigidBody* b2, CollisionResult result);
+		void drawInterface();
+		void separateBodies(const CollisionResult result);
+		void resolveCollision(const CollisionResult result);
 	};
 }
