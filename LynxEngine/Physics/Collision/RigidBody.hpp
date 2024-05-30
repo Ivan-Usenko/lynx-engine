@@ -1,10 +1,11 @@
 #pragma once
 #include "Engine/Types.hpp"
 #include "Physics/Collision/CollisionShapes.hpp"
+#include "Physics/Collision/Detection/AABB.hpp"
 
 namespace lynx
 {
-	class RigidBody : public sf::Transformable
+	class RigidBody : public Transform
 	{
 	public:
 		RigidBody();
@@ -22,8 +23,9 @@ namespace lynx
 		Vector2 getForce();
 		void clearForce();
 		void applyImpulse(Vector2 force);
+		AABB calcAABB();
 	private:
-		CollisionShape* m_collison_shape;
+		CollisionShape* m_collision_shape;
 		Vector2 m_linear_velocity;
 		float m_angular_velocity;
 		float m_inverse_mass;

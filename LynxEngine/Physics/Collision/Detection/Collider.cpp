@@ -13,7 +13,9 @@ namespace lynx
 		{
 			if (result)
 			{
-				result->normal = LynxMath::normilize(dir);
+				// If circles centers in the same position
+				if (LynxMath::equalf(dir, Vector2())) result->normal = Vector2(0.f, -1.f);
+				else result->normal = LynxMath::normilize(dir);
 				result->depth = rad_sum - sqrtf(dist_sq);
 			}
 			return true;
@@ -109,6 +111,16 @@ namespace lynx
 		}
 
 		return false;
+	}
+
+	bool Collider::isAABBOverlap(AABB b1, AABB b2)
+	{
+		float ov_right = fmaxf(b1.getMin().x, b2.getMin().x);
+		float ov_bottom = fmaxf(b1.getMin().y, b2.getMin().y);
+		float ov_left = fminf(b1.getMax().x, b2.getMax().x);
+		float ov_top = fminf(b1.getMax().y, b2.getMax().y);
+
+		return (ov_right > ov_left) && (ov_bottom > ov_top);
 	}
 
 	void Collider::calcMinAndMaxProjections(Vector2* vertices, int v_count, Vector2 axis, float* min, float* max)

@@ -138,7 +138,8 @@
     <ClCompile Include="Engine\Scene.cpp" />
     <ClCompile Include="Math\LynxMath.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Physics\Collision\Collider.cpp" />
+    <ClCompile Include="Physics\Collision\Detection\AABB.cpp" />
+    <ClCompile Include="Physics\Collision\Detection\Collider.cpp" />
     <ClCompile Include="Physics\Collision\Shapes\CollisionBox.cpp" />
     <ClCompile Include="Physics\Collision\Shapes\CollisionCircle.cpp" />
     <ClCompile Include="Physics\Collision\Shapes\CollisionShape.cpp" />
@@ -150,7 +151,8 @@
     <ClInclude Include="Engine\Scene.hpp" />
     <ClInclude Include="Engine\Types.hpp" />
     <ClInclude Include="Math\LynxMath.hpp" />
-    <ClInclude Include="Physics\Collision\Collider.hpp" />
+    <ClInclude Include="Physics\Collision\Detection\AABB.hpp" />
+    <ClInclude Include="Physics\Collision\Detection\Collider.hpp" />
     <ClInclude Include="Physics\Collision\CollisionShapes.hpp" />
     <ClInclude Include="Physics\Collision\Shapes\CollisionBox.hpp" />
     <ClInclude Include="Physics\Collision\Shapes\CollisionCircle.hpp" />

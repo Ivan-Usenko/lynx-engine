@@ -2,7 +2,7 @@
 #include "Engine/LynxWindow.hpp"
 #include "Engine/Scene.hpp"
 #include "Physics/Collision/CollisionShapes.hpp"
-#include "Physics/Collision/Collider.hpp"
+#include "Physics/Collision/Detection/Collider.hpp"
 
 namespace lynx
 {

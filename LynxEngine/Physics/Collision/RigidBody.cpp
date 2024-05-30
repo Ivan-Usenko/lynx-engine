@@ -4,7 +4,7 @@ namespace lynx
 {
 	RigidBody::RigidBody()
 	{
-		m_collison_shape = nullptr;
+		m_collision_shape = nullptr;
 		m_angular_velocity = 0.f;
 		m_inverse_mass = 0.f;
 		m_restitution = 1.f;
@@ -12,12 +12,12 @@ namespace lynx
 
 	void RigidBody::setCollisionShape(CollisionShape* shape)
 	{
-		m_collison_shape = shape;
+		m_collision_shape = shape;
 	}
 
 	CollisionShape* RigidBody::getCollisionShape()
 	{
-		return m_collison_shape;
+		return m_collision_shape;
 	}
 
 	Vector2 RigidBody::getLinearVelocity()
@@ -78,5 +78,41 @@ namespace lynx
 	void RigidBody::applyImpulse(Vector2 force)
 	{
 		m_linear_velocity += force * m_inverse_mass;
+	}
+
+	AABB RigidBody::calcAABB()
+	{
+		float min_x = std::numeric_limits<float>::max();
+		float min_y = std::numeric_limits<float>::max();
+		float max_x = std::numeric_limits<float>::min();
+		float max_y = std::numeric_limits<float>::min();
+
+		if (m_collision_shape)
+		{
+			CollisionShape::ShapeType type = m_collision_shape->getType();
+			if (type == CollisionShape::Circle)
+			{
+				CollisionCircle* circle = (CollisionCircle*)m_collision_shape;
+				min_x = getPosition().x - circle->getRadius();
+				min_y = getPosition().y - circle->getRadius();
+				max_x = getPosition().x + circle->getRadius();
+				max_y = getPosition().y + circle->getRadius();
+			}
+			else if (type == CollisionShape::Box)
+			{
+				CollisionBox* box = (CollisionBox*)m_collision_shape;
+				Vector2 vertices[4];
+				box->calcBoxVertices(vertices, *(lynx::Transform*)this);
+				for (Vector2 v : vertices)
+				{
+					min_x = fminf(min_x, v.x);
+					min_y = fminf(min_y, v.y);
+					max_x = fmaxf(max_x, v.x);
+					max_y = fmaxf(max_y, v.y);
+				}
+			}
+		}
+
+		return AABB(min_x, min_y, max_x, max_y);
 	}
 }
