@@ -3,7 +3,7 @@
 
 namespace lynx
 {
-	bool Collider::intersect(Transform t1, CollisionCircle c1, Transform t2, CollisionCircle c2, CollisionResult* result)
+	bool Collider::intersectCircles(Transform t1, CollisionCircle c1, Transform t2, CollisionCircle c2, CollisionResult* result)
 	{
 		sf::Vector2f dir = t2.getPosition() - t1.getPosition();
 		float dist_sq = LynxMath::magnitudeSq(dir);
@@ -21,7 +21,7 @@ namespace lynx
 		return false;
 	}
 
-	bool Collider::intersect(Transform t1, CollisionBox b1, Transform t2, CollisionBox b2, CollisionResult* result)
+	bool Collider::intersectBoxes(Transform t1, CollisionBox b1, Transform t2, CollisionBox b2, CollisionResult* result)
 	{
 		Vector2 b1_vertices[4];
 		Vector2 b2_vertices[4];
@@ -78,7 +78,7 @@ namespace lynx
 		return true;
 	}
 
-	bool Collider::intersect(Transform t1, CollisionCircle c1, Transform t2, CollisionBox b2, CollisionResult* result)
+	bool Collider::intersectCircleBox(Transform t1, CollisionCircle c1, Transform t2, CollisionBox b2, CollisionResult* result)
 	{
 		Vector2 c_loc_pos = LynxMath::rotate(t1.getPosition(), -t2.getRotation(), t2.getPosition());
 		Vector2 min = t2.getPosition() - b2.getSize();
@@ -109,13 +109,6 @@ namespace lynx
 		}
 
 		return false;
-	}
-
-	bool Collider::intersect(Transform t1, CollisionBox b1, Transform t2, CollisionCircle c2, CollisionResult* result)
-	{
-		bool r = intersect(t2, c2, t1, b1, result);
-		result->normal = -result->normal;
-		return r;
 	}
 
 	void Collider::calcMinAndMaxProjections(Vector2* vertices, int v_count, Vector2 axis, float* min, float* max)

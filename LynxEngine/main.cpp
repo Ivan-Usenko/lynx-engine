@@ -1,42 +1,62 @@
-
-#include "Engine/LynxWindow.hpp"
-#include "Physics/Collision/Collider.hpp"
-#include "Math/LynxMath.hpp"
+#include "Engine/LynxEngine.hpp"
+#include <random>
 
 int main()
 {
-	lynx::LynxWindow window;
-	window.setFramerateLimit(120.f);
+	lynx::LynxEngine* engine = lynx::LynxEngine::getLynxEngine();
+	lynx::Scene scene;
+	engine->setCurrentScene(&scene);
 
-	lynx::CollisionBox b1(lynx::Vector2(50.f, 30.f));
-	lynx::Transform t1;
-	t1.setPosition(200.f, 200.f);
-	t1.setRotation(30.f);
+	lynx::LynxWindow* window = engine->getWindow();
+	window->addEventHandler(sf::Event::MouseButtonPressed, [&](sf::Event e) {
+		srand(time(0));
+		lynx::RigidBody* body = new lynx::RigidBody();
+		body->setPosition(window->getRelMousePos());
+		lynx::CollisionShape* shape = nullptr;
 
-	lynx::CollisionCircle c2(30.f);
-	lynx::Transform t2;
+		if (e.mouseButton.button == sf::Mouse::Left) 
+			shape = new lynx::CollisionBox({ (float)(rand() % 10 + 20), (float)(rand() % 10 + 20) });
+		else if (e.mouseButton.button == sf::Mouse::Right) 
+			shape = new lynx::CollisionCircle((float)(rand() % 10 + 20));
 
-	while (window.isOpen())
+		body->setInverseMass(1.f);
+		body->setCollisionShape(shape);
+		scene.addBody(body);
+	});
+
+	lynx::RigidBody* player = new lynx::RigidBody();
+	player->setCollisionShape(new lynx::CollisionBox({ 30.f, 30.f }));
+	player->setPosition(200.f, 200.f);
+	player->setInverseMass(1.f);
+	scene.addBody(player);
+
+	lynx::RigidBody* ground = new lynx::RigidBody();
+	ground->setCollisionShape(new lynx::CollisionBox({200.f, 20.f}));
+	ground->setPosition(200.f, 400.f);
+	scene.addBody(ground);
+
+	scene.enableGravity(false);
+
+	float f_mag = 600.f;
+
+	// Main cycle
+	while (window->isOpen())
 	{
-		window.handleEvents();
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) player->addForce(f_mag * lynx::Vector2(0.f, -1.f));
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) player->addForce(f_mag * lynx::Vector2(0.f, 1.f));
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) player->addForce(f_mag * lynx::Vector2(-1.f, 0.f));
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) player->addForce(f_mag * lynx::Vector2(1.f, 0.f));
 
-		lynx::Vector2 mp = window.getRelMousePos();
-		t2.setPosition(mp);
-
-		window.clear();
-		lynx::CollisionResult result;
-		sf::Color color = sf::Color::White;
-		if (lynx::Collider::intersect(t1, b1, t2, c2, &result))
-		{
-			color = sf::Color::Red;
-			window.drawCircle(t2.getPosition().x, t2.getPosition().y, c2.getRadius(), sf::Color(0, 255, 0, 127));
-			t2.move(result.normal * result.depth);
-		}
-
-		window.drawRectangle(t1.getPosition().x, t1.getPosition().y, b1.getSize().x, b1.getSize().y, t1.getRotation(), color);
-		window.drawCircle(t2.getPosition().x, t2.getPosition().y, c2.getRadius(), color);
-		window.display();
+		engine->step(1.f / 60.f);
+		player->clearForce();
 	}
 
+	for (lynx::RigidBody* body : scene.getBodies())
+	{
+		delete body->getCollisionShape();
+		delete body;
+	}
+
+	engine->shutDown();
 	return 0;
 }

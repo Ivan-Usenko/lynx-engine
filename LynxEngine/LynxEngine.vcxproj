@@ -133,7 +133,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\LynxEngine.cpp" />
     <ClCompile Include="Engine\LynxWindow.cpp" />
+    <ClCompile Include="Engine\Scene.cpp" />
     <ClCompile Include="Math\LynxMath.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Physics\Collision\Collider.cpp" />
@@ -143,7 +145,9 @@
     <ClCompile Include="Physics\Collision\RigidBody.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Engine\LynxEngine.hpp" />
     <ClInclude Include="Engine\LynxWindow.hpp" />
+    <ClInclude Include="Engine\Scene.hpp" />
     <ClInclude Include="Engine\Types.hpp" />
     <ClInclude Include="Math\LynxMath.hpp" />
     <ClInclude Include="Physics\Collision\Collider.hpp" />
