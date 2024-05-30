@@ -39,16 +39,21 @@ namespace lynx
 		integrateAccel(dt);
 		integrateVelocity(dt);
 
-		std::vector<RigidBody*> bodies = m_cur_scene->getBodies();
-		for (int i = 0; i < bodies.size() - 1; i++)
+		std::list<RigidBody*> bodies = m_cur_scene->getBodies();
+		for (auto i = bodies.begin(); i != bodies.end(); i++)
 		{
-			for (int j = i + 1; j < bodies.size(); j++)
+
+			lynx::RigidBody* b1 = *i;
+			for (auto j = i; j != bodies.end(); j++)
 			{
+				if (j == i) continue;
+				lynx::RigidBody* b2 = *j;
+
 				CollisionResult result;
-				if (isCollide(bodies[i], bodies[j], &result))
+				if (isCollide(b1, b2, &result))
 				{
-					separateBodies(bodies[i], bodies[j], result);
-					resolveCollision(bodies[i], bodies[j], result);
+					separateBodies(b1, b2, result);
+					resolveCollision(b1, b2, result);
 				}
 			}
 		}

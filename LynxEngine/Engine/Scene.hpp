@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+#include <list>
 #include "Physics/Collision/RigidBody.hpp"
 
 namespace lynx
@@ -14,9 +14,10 @@ namespace lynx
 		bool isGravityEnabled();
 		void addBody(RigidBody* body);
 		void removeBody(RigidBody* body);
-		const std::vector<RigidBody*>& getBodies();
+		void clearBoies();
+		const std::list<RigidBody*>& getBodies();
 	private:
-		std::vector<RigidBody*> m_bodies;
+		std::list<RigidBody*> m_bodies;
 		bool m_gravity_enabled;
 		Vector2 m_gravity;
 	};

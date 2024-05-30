@@ -35,11 +35,16 @@ namespace lynx
 
 	void Scene::removeBody(RigidBody* body)
 	{
-		m_bodies.erase(std::remove(m_bodies.begin(), m_bodies.end(), body));
+		m_bodies.remove(body);
 	}
 
-	const std::vector<RigidBody*>& Scene::getBodies()
+	const std::list<RigidBody*>& Scene::getBodies()
 	{
 		return m_bodies;
+	}
+
+	void Scene::clearBoies()
+	{
+		m_bodies.clear();
 	}
 }
