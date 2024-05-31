@@ -13,6 +13,7 @@ namespace lynx
 
 		CollisionShape(ShapeType type);
 		ShapeType getType();
+		virtual float getInvInertiaCoef() = 0;
 	private:
 		ShapeType m_type;
 	};

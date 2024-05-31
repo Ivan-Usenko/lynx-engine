@@ -1,5 +1,7 @@
 #include "LynxEngine.hpp"
 #include "Math/LynxMath.hpp"
+#include <iomanip>
+#include <sstream>
 
 namespace lynx
 {
@@ -36,37 +38,40 @@ namespace lynx
 	{
 		m_window.handleEvents();
 
+		std::list<Vector2> contacts;
 		integrateAccel(dt);
 		integrateVelocity(dt);
 
-		std::list<Vector2> contacts;
 		std::list<RigidBody*> bodies = m_cur_scene->getBodies();
 		for (auto i = bodies.begin(); i != bodies.end(); i++)
 		{
-
-			lynx::RigidBody* b1 = *i;
+			RigidBody* b1 = *i;
+			AABB a1 = b1->calcAABB();
 			for (auto j = i; j != bodies.end(); j++)
 			{
 				if (j == i) continue;
-				lynx::RigidBody* b2 = *j;
+				RigidBody* b2 = *j;
+				AABB a2 = b2->calcAABB();
 
-				CollisionResult result;
-				if (Collider::isBodiesCollide(b1, b2, &result))
+				if (Collider::isAABBsOverlap(a1, a2))
 				{
-					separateBodies(result);
-					Collider::findContactPoints(&result);
+					CollisionResult result;
+					if (Collider::isBodiesCollide(b1, b2, &result))
+					{
+						separateBodies(result);
+						Collider::findContactPoints(&result);
 
-					for (int c = 0; c < result.contact_count; c++)
-						contacts.push_back(result.contact[c]);
+						for (int c = 0; c < result.contact_count; c++) contacts.push_back(result.contact[c]);
 
-					resolveCollision(result);
+						resolveCollision(result);
+					}
 				}
 			}
 		}
 
 		m_window.clear();
 		drawBodies();
-		for (Vector2 c : contacts) m_window.drawCircle(c.x, c.y, 3.f, sf::Color::Transparent, sf::Color::Red);
+		for (Vector2 c : contacts) m_window.drawCircle(c.x, c.y, 3.f, sf::Color::White, sf::Color::Red);
 		drawInterface();
 		m_window.display();
 	}
@@ -115,7 +120,11 @@ namespace lynx
 
 	void LynxEngine::drawInterface()
 	{
-		m_window.drawLabel("DEBUG", 15u);
+		std::stringstream ss;
+		ss << "DEBUG\n";
+		ss << "Time step: " << std::fixed << std::setprecision(4) << m_clock.restart().asSeconds() << std::endl;
+		ss << "Bodies count: " << m_cur_scene->getBodies().size();
+		m_window.drawLabel(ss.str(), 15u);
 	}
 
 	void LynxEngine::separateBodies(const CollisionResult result)

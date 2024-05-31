@@ -115,4 +115,10 @@ namespace lynx
 
 		return AABB(min_x, min_y, max_x, max_y);
 	}
+
+	float RigidBody::getInvInertia()
+	{
+		if (!m_collision_shape) return 0.f;
+		return m_collision_shape->getInvInertiaCoef() * m_inverse_mass;
+	}
 }

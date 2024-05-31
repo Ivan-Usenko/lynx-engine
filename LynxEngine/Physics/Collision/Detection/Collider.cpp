@@ -147,10 +147,27 @@ namespace lynx
 				if (LynxMath::equalf(dir, Vector2()))
 				{
 					Vector2 d = t2.getPosition() - cp;
-					Vector2 coll_reg = b2.getSize() - LynxMath::abs(d);
-					Vector2 axis = coll_reg.x < coll_reg.y ? Vector2(1.f, 0.f) : Vector2(0.f, 1.f);
-					dir = axis * LynxMath::dot(d, axis);
-					result->depth = c1.getRadius() + fminf(coll_reg.x, coll_reg.y);
+					// If circle and box center is the same point
+					if (LynxMath::equalf(d, Vector2()))
+					{
+						if (b2.getSize().x < b2.getSize().y)
+						{
+							dir = Vector2(1.f, 0.f);
+							result->depth = c1.getRadius() + b2.getSize().x;
+						}
+						else
+						{
+							dir = Vector2(0.f, 1.f);
+							result->depth = c1.getRadius() + b2.getSize().y;
+						}
+					}
+					else
+					{
+						Vector2 coll_reg = b2.getSize() - LynxMath::abs(d);
+						Vector2 axis = coll_reg.x < coll_reg.y ? Vector2(1.f, 0.f) : Vector2(0.f, 1.f);
+						dir = axis * LynxMath::dot(d, axis);
+						result->depth = c1.getRadius() + fminf(coll_reg.x, coll_reg.y);
+					}
 				}
 				else result->depth = c1.getRadius() - sqrtf(dist_sq);
 
@@ -163,14 +180,10 @@ namespace lynx
 		return false;
 	}
 
-	bool Collider::isAABBOverlap(AABB b1, AABB b2)
+	bool Collider::isAABBsOverlap(AABB b1, AABB b2)
 	{
-		float ov_right = fmaxf(b1.getMin().x, b2.getMin().x);
-		float ov_bottom = fmaxf(b1.getMin().y, b2.getMin().y);
-		float ov_left = fminf(b1.getMax().x, b2.getMax().x);
-		float ov_top = fminf(b1.getMax().y, b2.getMax().y);
-
-		return (ov_right > ov_left) && (ov_bottom > ov_top);
+		return !((b1.getMax().x <= b2.getMin().x || b2.getMax().x <= b1.getMin().x) ||
+			(b1.getMax().y <= b2.getMin().y || b2.getMax().y <= b1.getMin().y));
 	}
 
 	void Collider::calcMinAndMaxProjections(Vector2* vertices, int v_count, Vector2 axis, float* min, float* max)
@@ -184,6 +197,22 @@ namespace lynx
 			*min = fminf(*min, proj);
 			*max = fmaxf(*max, proj);
 		}
+	}
+
+	float Collider::projectPointOntoEdge(Vector2 p, Vector2 v1, Vector2 v2, Vector2* cp)
+	{
+		Vector2 edge = v2 - v1;
+		Vector2 dir = p - v1;
+
+		float proj = LynxMath::dot(edge, dir);
+		float edge_len_sq = LynxMath::magnitudeSq(edge);
+		float d = proj / edge_len_sq;
+
+		if (d <= 0.f) *cp = v1;
+		else if (d >= 1.f) *cp = v2;
+		else *cp = v1 + edge * d;
+
+		return LynxMath::distanceSq(p, *cp);
 	}
 
 	void Collider::findContactPoints(CollisionResult* result)
@@ -234,13 +263,68 @@ namespace lynx
 		result->contact[0] = t1.getPosition() + result->normal * c1.getRadius();
 	}
 
+	void Collider::findClosestVertexToBox(Vector2* b1_vertices, Vector2* b2_vertices, float* min_dist_sq, CollisionResult* result)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			Vector2 p = b1_vertices[i];
+			for (int j = 0; j < 4; j++)
+			{
+				Vector2 v1 = b2_vertices[j];
+				Vector2 v2 = b2_vertices[(j + 1) % 4];
+
+				Vector2 cp;
+				float dist_sq = projectPointOntoEdge(p, v1, v2, &cp);
+				if (LynxMath::equalf(dist_sq, *min_dist_sq))
+				{
+					if (!LynxMath::equalf(result->contact[0], cp) && !LynxMath::equalf(result->contact[1], cp))
+					{
+						result->contact[1] = cp;
+						result->contact_count = 2;
+					}
+				}
+				else if (dist_sq < *min_dist_sq)
+				{
+					*min_dist_sq = dist_sq;
+					result->contact[0] = cp;
+					if (result->contact_count < 2) result->contact_count = 1;
+				}
+			}
+		}
+	}
+
 	void Collider::findContactPointsBB(Transform t1, CollisionBox b1, Transform t2, CollisionBox b2, CollisionResult* result)
 	{
+		Vector2 b1_vertices[4];
+		Vector2 b2_vertices[4];
+		b1.calcBoxVertices(b1_vertices, t1);
+		b2.calcBoxVertices(b2_vertices, t2);
+		result->contact_count = 0;
 
+		float min_dist_sq = std::numeric_limits<float>::max();
+		findClosestVertexToBox(b1_vertices, b2_vertices, &min_dist_sq, result);
+		findClosestVertexToBox(b2_vertices, b1_vertices, &min_dist_sq, result);
 	}
 
 	void Collider::findContactPointsCB(Transform t1, CollisionCircle c1, Transform t2, CollisionBox b2, CollisionResult* result)
 	{
+		Vector2 vertices[4];
+		b2.calcBoxVertices(vertices, t2);
+		result->contact_count = 1;
 
+		float min_dist_sq = std::numeric_limits<float>::max();
+		for (int i = 0; i < 4; i++)
+		{
+			Vector2 v1 = vertices[i];
+			Vector2 v2 = vertices[(i + 1) % 4];
+			
+			Vector2 cp;
+			float dist_sq = projectPointOntoEdge(t1.getPosition(), v1, v2, &cp);
+			if (dist_sq < min_dist_sq)
+			{
+				min_dist_sq = dist_sq;
+				result->contact[0] = cp;
+			}
+		}
 	}
 }

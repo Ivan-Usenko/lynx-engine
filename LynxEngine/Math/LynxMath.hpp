@@ -21,5 +21,6 @@ namespace lynx
 		static float toDegrees(float angle);
 		static bool equalf(float f1, float f2, float e = 0.001f);
 		static bool equalf(Vector2 v1, Vector2 v2, float e = 0.001f);
+		static float roundf(float x, int precision);
 	};
 }

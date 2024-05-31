@@ -89,4 +89,10 @@ namespace lynx
 	{
 		return equalf(v1.x, v2.x, e) && equalf(v1.y, v2.y, e);
 	}
+
+	float LynxMath::roundf(float x, int precision)
+	{
+		float mult = powf(10.f, (float)precision);
+		return static_cast<float>(static_cast<int>(x * mult)) / mult;
+	}
 }

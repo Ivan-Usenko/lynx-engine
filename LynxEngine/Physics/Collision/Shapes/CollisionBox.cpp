@@ -26,4 +26,9 @@ namespace lynx
 		vertices[2] = mx.transformPoint(m_size);
 		vertices[3] = mx.transformPoint(-m_size.x, m_size.y);
 	}
+
+	float CollisionBox::getInvInertiaCoef()
+	{
+		return 12.f / (m_size.x * m_size.x + m_size.y * m_size.y);
+	}
 }

@@ -24,6 +24,7 @@ namespace lynx
 		void clearForce();
 		void applyImpulse(Vector2 force);
 		AABB calcAABB();
+		float getInvInertia();
 	private:
 		CollisionShape* m_collision_shape;
 		Vector2 m_linear_velocity;

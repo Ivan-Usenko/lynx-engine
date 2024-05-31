@@ -16,4 +16,9 @@ namespace lynx
 	{
 		return m_radius;
 	}
+
+	float CollisionCircle::getInvInertiaCoef()
+	{
+		return 2.f / (m_radius * m_radius);
+	}
 }

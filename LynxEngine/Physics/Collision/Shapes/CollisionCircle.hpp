@@ -9,6 +9,7 @@ namespace lynx
 		CollisionCircle(float radius = 1.f);
 		void setRadius(float radius);
 		float getRadius();
+		float getInvInertiaCoef() override;
 	private:
 		float m_radius;
 	};

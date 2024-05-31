@@ -20,6 +20,7 @@ namespace lynx
 		static LynxEngine* m_instance;
 		Scene* m_cur_scene;
 		LynxWindow m_window;
+		sf::Clock m_clock;
 
 		void integrateAccel(float dt);
 		void integrateVelocity(float dt);
