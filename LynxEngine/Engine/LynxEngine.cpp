@@ -10,7 +10,8 @@ namespace lynx
 	LynxEngine::LynxEngine()
 	{
 		m_cur_scene = nullptr;
-		m_window.setFramerateLimit(240.f);
+		m_window.setFramerateLimit(240);
+		m_step_time = 1.f / 240.f;
 	}
 
 	LynxEngine* LynxEngine::getLynxEngine()
@@ -36,12 +37,37 @@ namespace lynx
 
 	void LynxEngine::step(float dt)
 	{
+		// Handling events
 		m_window.handleEvents();
 
-		std::list<Vector2> contacts;
-		integrateAccel(dt);
-		integrateVelocity(dt);
+		for (int i = 0; i < 10; i++)
+		{
+			// Movement
+			integrateAccel(dt * 0.1f);
+			integrateVelocity(dt * 0.1f);
 
+			// Collision
+			broadCollisionPhase();
+			narrowCollisionPhase();
+		}
+		
+		// Drawing
+		m_window.clear();
+		drawBodies();
+		drawInterface();
+		m_window.display();
+
+		m_step_time = m_clock.restart().asSeconds();
+	}
+
+	float LynxEngine::getStepTime()
+	{
+		return m_step_time;
+	}
+
+
+	void LynxEngine::broadCollisionPhase()
+	{
 		std::list<RigidBody*> bodies = m_cur_scene->getBodies();
 		for (auto i = bodies.begin(); i != bodies.end(); i++)
 		{
@@ -55,25 +81,27 @@ namespace lynx
 
 				if (Collider::isAABBsOverlap(a1, a2))
 				{
-					CollisionResult result;
-					if (Collider::isBodiesCollide(b1, b2, &result))
-					{
-						separateBodies(result);
-						Collider::findContactPoints(&result);
-
-						for (int c = 0; c < result.contact_count; c++) contacts.push_back(result.contact[c]);
-
-						resolveCollision(result);
-					}
+					m_collision_pairs.push_back(std::pair(b1, b2));
 				}
 			}
 		}
+	}
 
-		m_window.clear();
-		drawBodies();
-		for (Vector2 c : contacts) m_window.drawCircle(c.x, c.y, 3.f, sf::Color::White, sf::Color::Red);
-		drawInterface();
-		m_window.display();
+	void LynxEngine::narrowCollisionPhase()
+	{
+		for (auto& pair : m_collision_pairs)
+		{
+			RigidBody* b1 = pair.first;
+			RigidBody* b2 = pair.second;
+			CollisionResult result;
+			if (Collider::isBodiesCollide(b1, b2, &result))
+			{
+				separateBodies(result);
+				Collider::findContactPoints(&result);
+				resolveCollisionEx(result);
+			}
+		}
+		m_collision_pairs.clear();
 	}
 
 	void LynxEngine::integrateAccel(float dt)
@@ -81,7 +109,7 @@ namespace lynx
 		if (!m_cur_scene) return;
 		for (RigidBody* body : m_cur_scene->getBodies())
 		{
-			Vector2 vel = body->getForce() * body->getInverseMass() * dt;
+			Vector2 vel = body->getForce() * body->getInverseMass();
 			if (m_cur_scene->isGravityEnabled() && body->getInverseMass()) vel += m_cur_scene->getGravity();
 			body->setLinearVelocity(body->getLinearVelocity() + vel * dt);
 		}
@@ -122,7 +150,7 @@ namespace lynx
 	{
 		std::stringstream ss;
 		ss << "DEBUG\n";
-		ss << "Time step: " << std::fixed << std::setprecision(4) << m_clock.restart().asSeconds() << std::endl;
+		ss << "Time step: " << std::fixed << std::setprecision(4) << getStepTime() << std::endl;
 		ss << "Bodies count: " << m_cur_scene->getBodies().size();
 		m_window.drawLabel(ss.str(), 15u);
 	}
@@ -155,4 +183,54 @@ namespace lynx
 		}
 	}
 
+	void LynxEngine::resolveCollisionEx(const CollisionResult result)
+	{
+		RigidBody* b1 = result.body1;
+		RigidBody* b2 = result.body2;
+
+		float inv_mass_sum = b1->getInverseMass() + b2->getInverseMass();
+		Vector2 impulses[2];
+		Vector2 r1_arr[2];
+		Vector2 r2_arr[2];
+		float e = fminf(b1->getRestitution(), b2->getRestitution());
+		float inv_inert1 = b1->getInvInertia();
+		float inv_inert2 = b2->getInvInertia();
+		if (inv_mass_sum)
+		{
+			for (int i = 0; i < result.contact_count; i++)
+			{
+				Vector2 r1 = result.contact[i] - b1->getPosition();
+				Vector2 r2 = result.contact[i] - b2->getPosition();
+
+				Vector2 r1_p = Vector2(-r1.y, r1.x);
+				Vector2 r2_p = Vector2(-r2.y, r2.x);
+
+				Vector2 ang_lv1 = b1->getAngularVelocity() * r1_p;
+				Vector2 ang_lv2 = b2->getAngularVelocity() * r2_p;
+
+				Vector2 rel_v = (b2->getLinearVelocity() + ang_lv2) - (b1->getLinearVelocity() + ang_lv2);
+				float cv = LynxMath::dot(rel_v, result.normal);
+
+				if (cv > 0.f) return;
+
+				float inert1 = powf(LynxMath::dot(r1_p, result.normal), 2.f) * inv_inert1;
+				float inert2 = powf(LynxMath::dot(r2_p, result.normal), 2.f) * inv_inert2;
+
+				Vector2 impulse = ((-(1 + e) * cv) / (inv_mass_sum + inert1 + inert2)) * result.normal;
+				impulses[i] = impulse / (float)result.contact_count;
+				r1_arr[i] = r1;
+				r2_arr[i] = r2;
+			}
+
+			for (int i = 0; i < result.contact_count; i++)
+			{
+				Vector2 impulse = impulses[i];
+
+				b1->setLinearVelocity(b1->getLinearVelocity() - impulse * b1->getInverseMass());
+				b1->setAngularVelocity(b1->getAngularVelocity() - LynxMath::cross(r1_arr[i], impulse) * inv_inert1);
+				b2->setLinearVelocity(b2->getLinearVelocity() + impulse * b2->getInverseMass());
+				b2->setAngularVelocity(b2->getAngularVelocity() + LynxMath::cross(r2_arr[i], impulse) * inv_inert2);
+			}
+		}
+	}
 }

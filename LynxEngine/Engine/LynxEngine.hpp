@@ -13,6 +13,7 @@ namespace lynx
 		LynxWindow* getWindow();
 		void setCurrentScene(Scene* scene);
 		void step(float dt);
+		float getStepTime();
 		void shutDown();
 	private:
 		LynxEngine();
@@ -21,12 +22,17 @@ namespace lynx
 		Scene* m_cur_scene;
 		LynxWindow m_window;
 		sf::Clock m_clock;
+		float m_step_time;
+		std::list<std::pair<RigidBody*, RigidBody*>> m_collision_pairs;
 
+		void broadCollisionPhase();
+		void narrowCollisionPhase();
 		void integrateAccel(float dt);
 		void integrateVelocity(float dt);
 		void drawBodies();
 		void drawInterface();
 		void separateBodies(const CollisionResult result);
 		void resolveCollision(const CollisionResult result);
+		void resolveCollisionEx(const CollisionResult result);
 	};
 }

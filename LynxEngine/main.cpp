@@ -24,7 +24,7 @@ int main()
 
 		body->setInverseMass(1.f);
 		body->setCollisionShape(shape);
-		body->setRestitution(.2f);
+		body->setRestitution(.5f);
 		scene.addBody(body);
 	});
 
@@ -33,12 +33,29 @@ int main()
 	ground->setPosition(200.f, 400.f);
 	scene.addBody(ground);
 
+	lynx::RigidBody* obstacle = new lynx::RigidBody();
+	obstacle->setCollisionShape(new lynx::CollisionBox({ 80.f, 20.f }));
+	obstacle->setPosition(100.f, 200.f);
+	obstacle->setRotation(15.f);
+	scene.addBody(obstacle);
+
+	lynx::RigidBody* obstacle1 = new lynx::RigidBody();
+	obstacle1->setCollisionShape(new lynx::CollisionBox({ 100.f, 20.f }));
+	obstacle1->setPosition(350.f, 330.f);
+	obstacle1->setRotation(-50.f);
+	scene.addBody(obstacle1);
+
+	lynx::RigidBody* obstacle2 = new lynx::RigidBody();
+	obstacle2->setCollisionShape(new lynx::CollisionBox({ 20.f, 50.f }));
+	obstacle2->setPosition(0.f, 330.f);
+	scene.addBody(obstacle2);
+
 	scene.enableGravity(true);
 
 	// Main cycle
 	while (window->isOpen())
 	{
-		engine->step(1.f / 60.f);
+		engine->step(engine->getStepTime() * 10.f);
 	}
 
 	for (lynx::RigidBody* body : scene.getBodies())
