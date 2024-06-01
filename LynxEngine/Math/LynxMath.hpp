@@ -1,6 +1,8 @@
 #pragma once
 #include "Engine/Types.hpp"
 
+#define	DEFAULT_EPSILON		0.001f
+
 namespace lynx
 {
 	class LynxMath
@@ -19,8 +21,8 @@ namespace lynx
 		static Vector2 rotate(Vector2 vector, float angle, Vector2 origin = Vector2());
 		static float toRadians(float angle);
 		static float toDegrees(float angle);
-		static bool equalf(float f1, float f2, float e = 0.001f);
-		static bool equalf(Vector2 v1, Vector2 v2, float e = 0.001f);
+		static bool equalf(float f1, float f2, float e = DEFAULT_EPSILON);
+		static bool equalf(Vector2 v1, Vector2 v2, float e = DEFAULT_EPSILON);
 		static float roundf(float x, int precision);
 	};
 }

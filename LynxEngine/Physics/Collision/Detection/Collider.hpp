@@ -3,7 +3,7 @@
 #include "Engine/Types.hpp"
 #include "Engine/LynxWindow.hpp"
 #include "AABB.hpp"
-#include "Physics/Collision/RigidBody.hpp"
+#include "Physics/RigidBody.hpp"
 
 namespace lynx
 {

@@ -2,6 +2,7 @@
 #include "Math/LynxMath.hpp"
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 
 namespace lynx
 {
@@ -40,11 +41,12 @@ namespace lynx
 		// Handling events
 		m_window.handleEvents();
 
+		dt *= 0.1f;
 		for (int i = 0; i < 10; i++)
 		{
 			// Movement
-			integrateAccel(dt * 0.1f);
-			integrateVelocity(dt * 0.1f);
+			integrateAccel(dt);
+			integrateVelocity(dt);
 
 			// Collision
 			broadCollisionPhase();
@@ -54,6 +56,8 @@ namespace lynx
 		// Drawing
 		m_window.clear();
 		drawBodies();
+		for (Vector2& c : m_contacts) m_window.drawCircle(c.x, c.y, 3.f, sf::Color::White, sf::Color::Red);
+		m_contacts.clear();
 		drawInterface();
 		m_window.display();
 
@@ -98,7 +102,12 @@ namespace lynx
 			{
 				separateBodies(result);
 				Collider::findContactPoints(&result);
-				resolveCollisionEx(result);
+				for (int i = 0; i < result.contact_count; i++)
+				{
+					if (std::find(m_contacts.begin(), m_contacts.end(), result.contact[i]) == m_contacts.end())
+						m_contacts.push_back(result.contact[i]);
+				}
+				resolveCollision(result);
 			}
 		}
 		m_collision_pairs.clear();
@@ -109,9 +118,12 @@ namespace lynx
 		if (!m_cur_scene) return;
 		for (RigidBody* body : m_cur_scene->getBodies())
 		{
-			Vector2 vel = body->getForce() * body->getInverseMass();
-			if (m_cur_scene->isGravityEnabled() && body->getInverseMass()) vel += m_cur_scene->getGravity();
-			body->setLinearVelocity(body->getLinearVelocity() + vel * dt);
+			if (body->getInverseMass() > 0.f)
+			{
+				Vector2 vel = body->getForce() * body->getInverseMass();
+				if (m_cur_scene->isGravityEnabled()) vel += m_cur_scene->getGravity();
+				body->setLinearVelocity(body->getLinearVelocity() + vel * dt);
+			}
 		}
 	}
 
@@ -171,22 +183,6 @@ namespace lynx
 	{
 		RigidBody* b1 = result.body1;
 		RigidBody* b2 = result.body2;
-		float inv_mass_sum = b1->getInverseMass() + b2->getInverseMass();
-		if (inv_mass_sum > 0.f)
-		{
-			float rel_v = LynxMath::dot(b1->getLinearVelocity() - b2->getLinearVelocity(), result.normal);
-			float e = fminf(b1->getRestitution(), b2->getRestitution());
-			Vector2 impulse = (-(1 + e) * rel_v / inv_mass_sum) * result.normal;
-
-			b1->setLinearVelocity(b1->getLinearVelocity() + impulse * b1->getInverseMass());
-			b2->setLinearVelocity(b2->getLinearVelocity() - impulse * b2->getInverseMass());
-		}
-	}
-
-	void LynxEngine::resolveCollisionEx(const CollisionResult result)
-	{
-		RigidBody* b1 = result.body1;
-		RigidBody* b2 = result.body2;
 
 		float inv_mass_sum = b1->getInverseMass() + b2->getInverseMass();
 		Vector2 impulses[2];
@@ -224,12 +220,11 @@ namespace lynx
 
 			for (int i = 0; i < result.contact_count; i++)
 			{
-				Vector2 impulse = impulses[i];
-
-				b1->setLinearVelocity(b1->getLinearVelocity() - impulse * b1->getInverseMass());
-				b1->setAngularVelocity(b1->getAngularVelocity() - LynxMath::cross(r1_arr[i], impulse) * inv_inert1);
-				b2->setLinearVelocity(b2->getLinearVelocity() + impulse * b2->getInverseMass());
-				b2->setAngularVelocity(b2->getAngularVelocity() + LynxMath::cross(r2_arr[i], impulse) * inv_inert2);
+				b1->setLinearVelocity(b1->getLinearVelocity() - impulses[i] * b1->getInverseMass());
+				b2->setLinearVelocity(b2->getLinearVelocity() + impulses[i] * b2->getInverseMass());
+				b1->setAngularVelocity(b1->getAngularVelocity() - LynxMath::cross(r1_arr[i], impulses[i]) * inv_inert1);
+				b2->setAngularVelocity(b2->getAngularVelocity() + LynxMath::cross(r2_arr[i], impulses[i]) * inv_inert2);
+				
 			}
 		}
 	}

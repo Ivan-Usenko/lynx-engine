@@ -144,7 +144,7 @@
     <ClCompile Include="Physics\Collision\Shapes\CollisionBox.cpp" />
     <ClCompile Include="Physics\Collision\Shapes\CollisionCircle.cpp" />
     <ClCompile Include="Physics\Collision\Shapes\CollisionShape.cpp" />
-    <ClCompile Include="Physics\Collision\RigidBody.cpp" />
+    <ClCompile Include="Physics\RigidBody.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\LynxEngine.hpp" />
@@ -158,7 +158,7 @@
     <ClInclude Include="Physics\Collision\Shapes\CollisionBox.hpp" />
     <ClInclude Include="Physics\Collision\Shapes\CollisionCircle.hpp" />
     <ClInclude Include="Physics\Collision\Shapes\CollisionShape.hpp" />
-    <ClInclude Include="Physics\Collision\RigidBody.hpp" />
+    <ClInclude Include="Physics\RigidBody.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

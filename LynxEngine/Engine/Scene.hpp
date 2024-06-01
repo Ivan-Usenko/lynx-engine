@@ -1,6 +1,6 @@
 #pragma once
 #include <list>
-#include "Physics/Collision/RigidBody.hpp"
+#include "Physics/RigidBody.hpp"
 
 namespace lynx
 {
