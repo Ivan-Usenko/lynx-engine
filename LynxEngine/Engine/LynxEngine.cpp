@@ -13,6 +13,7 @@ namespace lynx
 		m_cur_scene = nullptr;
 		m_window.setFramerateLimit(240);
 		m_step_time = 1.f / 240.f;
+		setIterationsPerStep(10);
 	}
 
 	LynxEngine* LynxEngine::getLynxEngine()
@@ -31,6 +32,12 @@ namespace lynx
 		if (m_instance) delete m_instance;
 	}
 
+	void LynxEngine::setIterationsPerStep(int ips)
+	{
+		m_ips = ips;
+		m_dt_coef = 1.f / (float)m_ips;
+	}
+
 	LynxWindow* LynxEngine::getWindow()
 	{
 		return &m_window;
@@ -41,8 +48,8 @@ namespace lynx
 		// Handling events
 		m_window.handleEvents();
 
-		dt *= 0.1f;
-		for (int i = 0; i < 10; i++)
+		dt *= m_dt_coef;
+		for (int i = 0; i < m_ips; i++)
 		{
 			// Movement
 			integrateAccel(dt);
@@ -178,14 +185,18 @@ namespace lynx
 		RigidBody* b2 = result.body2;
 
 		float inv_mass_sum = b1->getInverseMass() + b2->getInverseMass();
-		Vector2 impulses[2];
-		Vector2 r1_arr[2];
-		Vector2 r2_arr[2];
-		float e = fminf(b1->getRestitution(), b2->getRestitution());
-		float inv_inert1 = b1->getInvInertia();
-		float inv_inert2 = b2->getInvInertia();
 		if (inv_mass_sum)
 		{
+			Vector2 impulses[2];
+			float imp_magnitudes[2];
+			Vector2 r1_arr[2];
+			Vector2 r2_arr[2];
+			float e = fminf(b1->getRestitution(), b2->getRestitution());
+			float inv_inert1 = b1->getInvInertia();
+			float inv_inert2 = b2->getInvInertia();
+			float frict_coef = (b1->getFriction() + b2->getFriction()) / 2.f;
+
+			// Calculate normal impulse
 			for (int i = 0; i < result.contact_count; i++)
 			{
 				Vector2 r1 = result.contact[i] - b1->getPosition();
@@ -200,19 +211,61 @@ namespace lynx
 				Vector2 rel_v = (b2->getLinearVelocity() + ang_lv2) - (b1->getLinearVelocity() + ang_lv1);
 				float cv = LynxMath::dot(rel_v, result.normal);
 
-				if (cv > 0.f) continue;
+				if (cv > 0.f) return;
 
 				float inert1 = powf(LynxMath::dot(r1_p, result.normal), 2.f) * inv_inert1;
 				float inert2 = powf(LynxMath::dot(r2_p, result.normal), 2.f) * inv_inert2;
 
-				Vector2 impulse = ((-(1.f + e) * cv) / (inv_mass_sum + inert1 + inert2)) * result.normal;
-				impulses[i] = impulse / (float)result.contact_count;
+				float imp_magnitude = ((-(1.f + e) * cv) / (inv_mass_sum + inert1 + inert2)) / (float)result.contact_count;
+				Vector2 impulse = imp_magnitude * result.normal;
+				impulses[i] = impulse;
+				imp_magnitudes[i] = imp_magnitude;
 				r1_arr[i] = r1;
 				r2_arr[i] = r2;
-
-				auto forces = std::pair(result.contact[i], impulses[i]);
 			}
 
+			// Apply normal impulse
+			for (int i = 0; i < result.contact_count; i++)
+			{
+				b1->applyImpulse(-impulses[i]);
+				b2->applyImpulse(impulses[i]);
+				b1->applyAngularImpulse(-impulses[i], r1_arr[i]);
+				b2->applyAngularImpulse(impulses[i], r2_arr[i]);
+			}
+
+			// Calculate tangent impulse
+			impulses[0] = impulses[1] = Vector2();
+			for (int i = 0; i < result.contact_count; i++)
+			{
+				Vector2 r1 = r1_arr[i];
+				Vector2 r2 = r2_arr[i];
+
+				Vector2 r1_p = Vector2(-r1.y, r1.x);
+				Vector2 r2_p = Vector2(-r2.y, r2.x);
+
+				Vector2 ang_lv1 = b1->getAngularVelocity() * r1_p;
+				Vector2 ang_lv2 = b2->getAngularVelocity() * r2_p;
+
+				Vector2 rel_v = (b2->getLinearVelocity() + ang_lv2) - (b1->getLinearVelocity() + ang_lv1);
+				
+				Vector2 tangent = rel_v - LynxMath::dot(rel_v, result.normal) * result.normal;
+
+				if (LynxMath::equalf(tangent, Vector2())) continue;
+				else tangent = LynxMath::normilize(tangent);
+
+				float inert1 = powf(LynxMath::dot(r1_p, tangent), 2.f) * inv_inert1;
+				float inert2 = powf(LynxMath::dot(r2_p, tangent), 2.f) * inv_inert2;
+
+				float f_imp_magnitude = (-LynxMath::dot(rel_v, tangent) / (inv_mass_sum + inert1 + inert2)) / (float)result.contact_count;
+				Vector2 f_impulse;
+
+				if (fabsf(f_imp_magnitude) <= imp_magnitudes[i] * frict_coef) f_impulse = f_imp_magnitude * tangent * frict_coef;
+				else f_impulse = -imp_magnitudes[i] * tangent * frict_coef * 0.8f;
+				
+				impulses[i] = f_impulse;
+			}
+
+			// Apply tangent impulse
 			for (int i = 0; i < result.contact_count; i++)
 			{
 				b1->applyImpulse(-impulses[i]);

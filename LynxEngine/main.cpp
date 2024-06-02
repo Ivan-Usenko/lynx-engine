@@ -49,8 +49,6 @@ int main()
 	obstacle2->setPosition(0.f, 330.f);
 	scene.addBody(obstacle2);
 
-	scene.enableGravity(true);
-
 	// Main cycle
 	while (window->isOpen())
 	{

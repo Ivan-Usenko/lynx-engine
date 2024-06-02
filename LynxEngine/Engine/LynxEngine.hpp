@@ -14,6 +14,7 @@ namespace lynx
 		void setCurrentScene(Scene* scene);
 		void step(float dt);
 		float getStepTime();
+		void setIterationsPerStep(int ips);
 		void shutDown();
 	private:
 		LynxEngine();
@@ -23,6 +24,8 @@ namespace lynx
 		LynxWindow m_window;
 		sf::Clock m_clock;
 		float m_step_time;
+		int m_ips;
+		float m_dt_coef;
 		std::list<std::pair<RigidBody*, RigidBody*>> m_collision_pairs;
 
 		void broadCollisionPhase();

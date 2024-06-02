@@ -26,6 +26,8 @@ namespace lynx
 		void applyAngularImpulse(Vector2 force, Vector2 lever);
 		AABB calcAABB();
 		float getInvInertia();
+		void setFriction(float friction);
+		float getFriction();
 	private:
 		CollisionShape* m_collision_shape;
 		Vector2 m_linear_velocity;
@@ -33,6 +35,7 @@ namespace lynx
 		float m_inverse_mass;
 		float m_inverse_inertia;
 		float m_restitution;
+		float m_friction;
 		Vector2 m_force;
 
 		void calcInverseInertia();

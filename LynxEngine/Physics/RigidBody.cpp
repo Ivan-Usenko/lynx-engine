@@ -10,6 +10,7 @@ namespace lynx
 		m_inverse_mass = 0.f;
 		m_restitution = 1.f;
 		m_inverse_inertia = 0.f;
+		m_friction = 0.3f;
 	}
 
 	void RigidBody::setCollisionShape(CollisionShape* shape)
@@ -61,7 +62,7 @@ namespace lynx
 
 	void RigidBody::setRestitution(float restitution)
 	{
-		m_restitution = restitution;
+		m_restitution = LynxMath::clamp(restitution, 0.f, 1.f);
 	}
 
 	void RigidBody::addForce(Vector2 force)
@@ -134,5 +135,15 @@ namespace lynx
 	{
 		if (m_collision_shape) m_inverse_inertia = m_collision_shape->getInvInertiaCoef() * m_inverse_mass;
 		else m_inverse_inertia = 0.f;		
+	}
+
+	void RigidBody::setFriction(float friction)
+	{
+		m_friction = LynxMath::clamp(friction, 0.f, 1.f);
+	}
+
+	float RigidBody::getFriction()
+	{
+		return m_friction;
 	}
 }
