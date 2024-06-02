@@ -78,8 +78,8 @@ namespace lynx
 	{
 		sf::Vertex line[2];
 		line[0].color = line[1].color = color;
-		line[0] = sf::Vector2f(x1, y1);
-		line[1] = sf::Vector2f(x2, y2);
+		line[0].position = sf::Vector2f(x1, y1);
+		line[1].position = sf::Vector2f(x2, y2);
 		this->draw(line, 2, sf::Lines);
 	}
 

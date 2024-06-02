@@ -24,7 +24,6 @@ namespace lynx
 		sf::Clock m_clock;
 		float m_step_time;
 		std::list<std::pair<RigidBody*, RigidBody*>> m_collision_pairs;
-		std::list<Vector2> m_contacts;
 
 		void broadCollisionPhase();
 		void narrowCollisionPhase();

@@ -52,12 +52,10 @@ namespace lynx
 			broadCollisionPhase();
 			narrowCollisionPhase();
 		}
-		
+
 		// Drawing
 		m_window.clear();
 		drawBodies();
-		for (Vector2& c : m_contacts) m_window.drawRectangle(c.x, c.y, 3.f, 3.f, 0.f, sf::Color::White, sf::Color::Red);
-		m_contacts.clear();
 		drawInterface();
 		m_window.display();
 
@@ -102,11 +100,6 @@ namespace lynx
 			{
 				separateBodies(result);
 				Collider::findContactPoints(&result);
-				for (int i = 0; i < result.contact_count; i++)
-				{
-					if (std::find(m_contacts.begin(), m_contacts.end(), result.contact[i]) == m_contacts.end())
-						m_contacts.push_back(result.contact[i]);
-				}
 				resolveCollision(result);
 			}
 		}
@@ -133,7 +126,7 @@ namespace lynx
 		for (RigidBody* body : m_cur_scene->getBodies())
 		{
 			body->move(body->getLinearVelocity() * dt);
-			body->rotate(body->getAngularVelocity() * dt);
+			body->rotate(LynxMath::toDegrees(body->getAngularVelocity() * dt));
 		}
 	}
 
@@ -204,18 +197,20 @@ namespace lynx
 				Vector2 ang_lv1 = b1->getAngularVelocity() * r1_p;
 				Vector2 ang_lv2 = b2->getAngularVelocity() * r2_p;
 
-				Vector2 rel_v = (b2->getLinearVelocity() + ang_lv2) - (b1->getLinearVelocity() + ang_lv2);
+				Vector2 rel_v = (b2->getLinearVelocity() + ang_lv2) - (b1->getLinearVelocity() + ang_lv1);
 				float cv = LynxMath::dot(rel_v, result.normal);
 
-				if (cv > 0.f) return;
+				if (cv > 0.f) continue;
 
 				float inert1 = powf(LynxMath::dot(r1_p, result.normal), 2.f) * inv_inert1;
 				float inert2 = powf(LynxMath::dot(r2_p, result.normal), 2.f) * inv_inert2;
 
-				Vector2 impulse = ((-(1 + e) * cv) / (inv_mass_sum + inert1 + inert2)) * result.normal;
+				Vector2 impulse = ((-(1.f + e) * cv) / (inv_mass_sum + inert1 + inert2)) * result.normal;
 				impulses[i] = impulse / (float)result.contact_count;
 				r1_arr[i] = r1;
 				r2_arr[i] = r2;
+
+				auto forces = std::pair(result.contact[i], impulses[i]);
 			}
 
 			for (int i = 0; i < result.contact_count; i++)

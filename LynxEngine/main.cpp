@@ -23,7 +23,7 @@ int main()
 
 		body->setInverseMass(1.f);
 		body->setCollisionShape(shape);
-		body->setRestitution(.5f);
+		body->setRestitution(.2f);
 		scene.addBody(body);
 	});
 
@@ -34,9 +34,8 @@ int main()
 
 	lynx::RigidBody* obstacle = new lynx::RigidBody();
 	obstacle->setCollisionShape(new lynx::CollisionBox({ 80.f, 20.f }));
-	obstacle->setPosition(150.f, 200.f);
+	obstacle->setPosition(100.f, 200.f);
 	obstacle->setRotation(15.f);
-	obstacle->setInverseMass(1.f);
 	scene.addBody(obstacle);
 
 	lynx::RigidBody* obstacle1 = new lynx::RigidBody();
