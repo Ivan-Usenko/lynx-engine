@@ -18,9 +18,9 @@ namespace lynx
 		return m_size;
 	}
 
-	void CollisionBox::calcBoxVertices(Vector2 vertices[4], Transform t)
+	void CollisionBox::calcBoxVertices(Vector2 vertices[4], Transform* t)
 	{
-		sf::Transform mx = t.getTransform();
+		sf::Transform mx = t->getTransform();
 		vertices[0] = mx.transformPoint(-m_size);
 		vertices[1] = mx.transformPoint(m_size.x, -m_size.y);
 		vertices[2] = mx.transformPoint(m_size);

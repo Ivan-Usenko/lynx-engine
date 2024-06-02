@@ -21,24 +21,24 @@ namespace lynx
 			{
 				if (st2 == CollisionShape::Circle)
 				{
-					is_collide = Collider::intersectCircles(*t1, *(CollisionCircle*)s1, *t2, *(CollisionCircle*)s2, result);
+					is_collide = Collider::intersectCircles(t1, (CollisionCircle*)s1, t2, (CollisionCircle*)s2, result);
 				}
 				else if (st2 == CollisionShape::Box)
 				{
-					is_collide = Collider::intersectCircleBox(*t1, *(CollisionCircle*)s1, *t2, *(CollisionBox*)s2, result);
+					is_collide = Collider::intersectCircleBox(t1, (CollisionCircle*)s1, t2, (CollisionBox*)s2, result);
 				}
 			}
 			else if (st1 == CollisionShape::Box)
 			{
 				if (st2 == CollisionShape::Circle)
 				{
-					float r = Collider::intersectCircleBox(*t2, *(CollisionCircle*)s2, *t1, *(CollisionBox*)s1, result);
+					float r = Collider::intersectCircleBox(t2, (CollisionCircle*)s2, t1, (CollisionBox*)s1, result);
 					result->normal = -result->normal;
 					is_collide = r;
 				}
 				else if (st2 == CollisionShape::Box)
 				{
-					is_collide = Collider::intersectBoxes(*t1, *(CollisionBox*)s1, *t2, *(CollisionBox*)s2, result);
+					is_collide = Collider::intersectBoxes(t1, (CollisionBox*)s1, t2, (CollisionBox*)s2, result);
 				}
 			}
 
@@ -53,11 +53,11 @@ namespace lynx
 		return false;
 	}
 
-	bool Collider::intersectCircles(Transform t1, CollisionCircle c1, Transform t2, CollisionCircle c2, CollisionResult* result)
+	bool Collider::intersectCircles(Transform* t1, CollisionCircle* c1, Transform* t2, CollisionCircle* c2, CollisionResult* result)
 	{
-		Vector2 dir = t2.getPosition() - t1.getPosition();
+		Vector2 dir = t2->getPosition() - t1->getPosition();
 		float dist_sq = LynxMath::magnitudeSq(dir);
-		float rad_sum = c1.getRadius() + c2.getRadius();
+		float rad_sum = c1->getRadius() + c2->getRadius();
 
 		if (dist_sq < rad_sum * rad_sum)
 		{
@@ -73,12 +73,12 @@ namespace lynx
 		return false;
 	}
 
-	bool Collider::intersectBoxes(Transform t1, CollisionBox b1, Transform t2, CollisionBox b2, CollisionResult* result)
+	bool Collider::intersectBoxes(Transform* t1, CollisionBox* b1, Transform* t2, CollisionBox* b2, CollisionResult* result)
 	{
 		Vector2 b1_vertices[4];
 		Vector2 b2_vertices[4];
-		b1.calcBoxVertices(b1_vertices, t1);
-		b2.calcBoxVertices(b2_vertices, t2);
+		b1->calcBoxVertices(b1_vertices, t1);
+		b2->calcBoxVertices(b2_vertices, t2);
 
 		Vector2 min_axis;
 		float min_depth = std::numeric_limits<float>::max();
@@ -122,7 +122,7 @@ namespace lynx
 
 		if (result)
 		{
-			if (LynxMath::dot(t2.getPosition() - t1.getPosition(), min_axis) < 0.f) min_axis = -min_axis;
+			if (LynxMath::dot(t2->getPosition() - t1->getPosition(), min_axis) < 0.f) min_axis = -min_axis;
 			result->normal = min_axis;
 			result->depth = min_depth;
 		}
@@ -130,48 +130,48 @@ namespace lynx
 		return true;
 	}
 
-	bool Collider::intersectCircleBox(Transform t1, CollisionCircle c1, Transform t2, CollisionBox b2, CollisionResult* result)
+	bool Collider::intersectCircleBox(Transform* t1, CollisionCircle* c1, Transform* t2, CollisionBox* b2, CollisionResult* result)
 	{
-		Vector2 c_loc_pos = LynxMath::rotate(t1.getPosition(), -t2.getRotation(), t2.getPosition());
-		Vector2 min = t2.getPosition() - b2.getSize();
-		Vector2 max = t2.getPosition() + b2.getSize();
+		Vector2 c_loc_pos = LynxMath::rotate(t1->getPosition(), -t2->getRotation(), t2->getPosition());
+		Vector2 min = t2->getPosition() - b2->getSize();
+		Vector2 max = t2->getPosition() + b2->getSize();
 
 		Vector2 cp = LynxMath::clamp(c_loc_pos, min, max);
 		Vector2 dir = cp - c_loc_pos;
 		float dist_sq = LynxMath::magnitudeSq(dir);
-		if (dist_sq < c1.getRadius() * c1.getRadius())
+		if (dist_sq < c1->getRadius() * c1->getRadius())
 		{
 			if (result)
 			{
 				// If circle center inside the box
 				if (LynxMath::equalf(dir, Vector2()))
 				{
-					Vector2 d = t2.getPosition() - cp;
+					Vector2 d = t2->getPosition() - cp;
 					// If circle and box center is the same point
 					if (LynxMath::equalf(d, Vector2()))
 					{
-						if (b2.getSize().x < b2.getSize().y)
+						if (b2->getSize().x < b2->getSize().y)
 						{
 							dir = Vector2(1.f, 0.f);
-							result->depth = c1.getRadius() + b2.getSize().x;
+							result->depth = c1->getRadius() + b2->getSize().x;
 						}
 						else
 						{
 							dir = Vector2(0.f, 1.f);
-							result->depth = c1.getRadius() + b2.getSize().y;
+							result->depth = c1->getRadius() + b2->getSize().y;
 						}
 					}
 					else
 					{
-						Vector2 coll_reg = b2.getSize() - LynxMath::abs(d);
+						Vector2 coll_reg = b2->getSize() - LynxMath::abs(d);
 						Vector2 axis = coll_reg.x < coll_reg.y ? Vector2(1.f, 0.f) : Vector2(0.f, 1.f);
 						dir = axis * LynxMath::dot(d, axis);
-						result->depth = c1.getRadius() + fminf(coll_reg.x, coll_reg.y);
+						result->depth = c1->getRadius() + fminf(coll_reg.x, coll_reg.y);
 					}
 				}
-				else result->depth = c1.getRadius() - sqrtf(dist_sq);
+				else result->depth = c1->getRadius() - sqrtf(dist_sq);
 
-				result->normal = LynxMath::rotate(LynxMath::normilize(dir), t2.getRotation());
+				result->normal = LynxMath::rotate(LynxMath::normilize(dir), t2->getRotation());
 			}
 
 			return true;
@@ -180,10 +180,10 @@ namespace lynx
 		return false;
 	}
 
-	bool Collider::isAABBsOverlap(AABB b1, AABB b2)
+	bool Collider::isAABBsOverlap(AABB* b1, AABB* b2)
 	{
-		return !((b1.getMax().x <= b2.getMin().x || b2.getMax().x <= b1.getMin().x) ||
-			(b1.getMax().y <= b2.getMin().y || b2.getMax().y <= b1.getMin().y));
+		return !((b1->getMax().x <= b2->getMin().x || b2->getMax().x <= b1->getMin().x) ||
+			(b1->getMax().y <= b2->getMin().y || b2->getMax().y <= b1->getMin().y));
 	}
 
 	void Collider::calcMinAndMaxProjections(Vector2* vertices, int v_count, Vector2 axis, float* min, float* max)
@@ -235,32 +235,32 @@ namespace lynx
 				{
 					if (type2 == CollisionShape::Circle)
 					{
-						findContactPointsCC(*(Transform*)b1, *(CollisionCircle*)s1, result);
+						findContactPointsCC(b1, (CollisionCircle*)s1, result);
 					}
 					else if (type2 == CollisionShape::Box)
 					{
-						findContactPointsCB(*(Transform*)b1, *(CollisionCircle*)s1, *(Transform*)b2, *(CollisionBox*)s2, result);
+						findContactPointsCB(b1, (CollisionCircle*)s1, b2, (CollisionBox*)s2, result);
 					}
 				}
 				else if (type1 == CollisionShape::Box)
 				{
 					if (type2 == CollisionShape::Circle)
 					{
-						findContactPointsCB(*(Transform*)b2, *(CollisionCircle*)s2, *(Transform*)b1, *(CollisionBox*)s1, result);
+						findContactPointsCB(b2, (CollisionCircle*)s2, b1, (CollisionBox*)s1, result);
 					}
 					else if (type2 == CollisionShape::Box)
 					{
-						findContactPointsBB(*(Transform*)b1, *(CollisionBox*)s1, *(Transform*)b2, *(CollisionBox*)s2, result);
+						findContactPointsBB(b1, (CollisionBox*)s1, b2, (CollisionBox*)s2, result);
 					}
 				}
 			}
 		}
 	}
 
-	void Collider::findContactPointsCC(Transform t1, CollisionCircle c1, CollisionResult* result)
+	void Collider::findContactPointsCC(Transform* t1, CollisionCircle* c1, CollisionResult* result)
 	{
 		result->contact_count = 1;
-		result->contact[0] = t1.getPosition() + result->normal * c1.getRadius();
+		result->contact[0] = t1->getPosition() + result->normal * c1->getRadius();
 	}
 
 	void Collider::findClosestVertexToBox(Vector2* b1_vertices, Vector2* b2_vertices, float* min_dist_sq, CollisionResult* result)
@@ -293,12 +293,12 @@ namespace lynx
 		}
 	}
 
-	void Collider::findContactPointsBB(Transform t1, CollisionBox b1, Transform t2, CollisionBox b2, CollisionResult* result)
+	void Collider::findContactPointsBB(Transform* t1, CollisionBox* b1, Transform* t2, CollisionBox* b2, CollisionResult* result)
 	{
 		Vector2 b1_vertices[4];
 		Vector2 b2_vertices[4];
-		b1.calcBoxVertices(b1_vertices, t1);
-		b2.calcBoxVertices(b2_vertices, t2);
+		b1->calcBoxVertices(b1_vertices, t1);
+		b2->calcBoxVertices(b2_vertices, t2);
 		result->contact_count = 0;
 
 		float min_dist_sq = std::numeric_limits<float>::max();
@@ -306,10 +306,10 @@ namespace lynx
 		findClosestVertexToBox(b2_vertices, b1_vertices, &min_dist_sq, result);
 	}
 
-	void Collider::findContactPointsCB(Transform t1, CollisionCircle c1, Transform t2, CollisionBox b2, CollisionResult* result)
+	void Collider::findContactPointsCB(Transform* t1, CollisionCircle* c1, Transform* t2, CollisionBox* b2, CollisionResult* result)
 	{
 		Vector2 vertices[4];
-		b2.calcBoxVertices(vertices, t2);
+		b2->calcBoxVertices(vertices, t2);
 		result->contact_count = 1;
 
 		float min_dist_sq = std::numeric_limits<float>::max();
@@ -319,7 +319,7 @@ namespace lynx
 			Vector2 v2 = vertices[(i + 1) % 4];
 			
 			Vector2 cp;
-			float dist_sq = projectPointOntoEdge(t1.getPosition(), v1, v2, &cp);
+			float dist_sq = projectPointOntoEdge(t1->getPosition(), v1, v2, &cp);
 			if (dist_sq < min_dist_sq)
 			{
 				min_dist_sq = dist_sq;

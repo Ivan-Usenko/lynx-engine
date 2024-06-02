@@ -111,7 +111,7 @@ namespace lynx
 			{
 				CollisionBox* box = (CollisionBox*)m_collision_shape;
 				Vector2 vertices[4];
-				box->calcBoxVertices(vertices, *(lynx::Transform*)this);
+				box->calcBoxVertices(vertices, (lynx::Transform*)this);
 				for (Vector2 v : vertices)
 				{
 					min_x = fminf(min_x, v.x);

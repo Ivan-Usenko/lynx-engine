@@ -81,7 +81,7 @@ namespace lynx
 				RigidBody* b2 = *j;
 				AABB a2 = b2->calcAABB();
 
-				if (Collider::isAABBsOverlap(a1, a2))
+				if (Collider::isAABBsOverlap(&a1, &a2))
 				{
 					m_collision_pairs.push_back(std::pair(b1, b2));
 				}
