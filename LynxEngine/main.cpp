@@ -15,12 +15,11 @@ int main()
 		lynx::CollisionShape* shape = nullptr;
 
 		if (e.mouseButton.button == sf::Mouse::Left)
-		{
 			shape = new lynx::CollisionBox({ (float)(rand() % 10 + 20), (float)(rand() % 10 + 20) });
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) body->setRotation((float)(rand() % 360));
-		}
 		else if (e.mouseButton.button == sf::Mouse::Right) 
 			shape = new lynx::CollisionCircle((float)(rand() % 10 + 20));
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) body->setRotation((float)(rand() % 360));
 
 		body->setInverseMass(1.f);
 		body->setCollisionShape(shape);
@@ -35,8 +34,9 @@ int main()
 
 	lynx::RigidBody* obstacle = new lynx::RigidBody();
 	obstacle->setCollisionShape(new lynx::CollisionBox({ 80.f, 20.f }));
-	obstacle->setPosition(100.f, 200.f);
+	obstacle->setPosition(150.f, 200.f);
 	obstacle->setRotation(15.f);
+	obstacle->setInverseMass(1.f);
 	scene.addBody(obstacle);
 
 	lynx::RigidBody* obstacle1 = new lynx::RigidBody();

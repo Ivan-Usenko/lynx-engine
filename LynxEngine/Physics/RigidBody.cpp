@@ -1,4 +1,5 @@
 #include "RigidBody.hpp"
+#include "Math/LynxMath.hpp"
 
 namespace lynx
 {
@@ -8,11 +9,13 @@ namespace lynx
 		m_angular_velocity = 0.f;
 		m_inverse_mass = 0.f;
 		m_restitution = 1.f;
+		m_inverse_inertia = 0.f;
 	}
 
 	void RigidBody::setCollisionShape(CollisionShape* shape)
 	{
 		m_collision_shape = shape;
+		calcInverseInertia();
 	}
 
 	CollisionShape* RigidBody::getCollisionShape()
@@ -48,6 +51,7 @@ namespace lynx
 	void RigidBody::setInverseMass(float inverse_mass)
 	{
 		m_inverse_mass = inverse_mass;
+		calcInverseInertia();
 	}
 
 	float RigidBody::getRestitution()
@@ -78,6 +82,11 @@ namespace lynx
 	void RigidBody::applyImpulse(Vector2 force)
 	{
 		m_linear_velocity += force * m_inverse_mass;
+	}
+
+	void RigidBody::applyAngularImpulse(Vector2 force, Vector2 lever)
+	{
+		m_angular_velocity += LynxMath::cross(lever, force) * m_inverse_inertia;
 	}
 
 	AABB RigidBody::calcAABB()
@@ -118,7 +127,12 @@ namespace lynx
 
 	float RigidBody::getInvInertia()
 	{
-		if (!m_collision_shape) return 0.f;
-		return m_collision_shape->getInvInertiaCoef() * m_inverse_mass;
+		return m_inverse_inertia;
+	}
+
+	void RigidBody::calcInverseInertia()
+	{
+		if (m_collision_shape) m_inverse_inertia = m_collision_shape->getInvInertiaCoef() * m_inverse_mass;
+		else m_inverse_inertia = 0.f;		
 	}
 }

@@ -56,7 +56,7 @@ namespace lynx
 		// Drawing
 		m_window.clear();
 		drawBodies();
-		for (Vector2& c : m_contacts) m_window.drawCircle(c.x, c.y, 3.f, sf::Color::White, sf::Color::Red);
+		for (Vector2& c : m_contacts) m_window.drawRectangle(c.x, c.y, 3.f, 3.f, 0.f, sf::Color::White, sf::Color::Red);
 		m_contacts.clear();
 		drawInterface();
 		m_window.display();
@@ -153,7 +153,7 @@ namespace lynx
 			else if (type == CollisionShape::Circle)
 			{
 				CollisionCircle* circle = (CollisionCircle*)shape;
-				m_window.drawCircle(body->getPosition().x, body->getPosition().y, circle->getRadius());
+				m_window.drawCircle(body->getPosition().x, body->getPosition().y, circle->getRadius(), body->getRotation());
 			}
 		}
 	}
@@ -220,11 +220,10 @@ namespace lynx
 
 			for (int i = 0; i < result.contact_count; i++)
 			{
-				b1->setLinearVelocity(b1->getLinearVelocity() - impulses[i] * b1->getInverseMass());
-				b2->setLinearVelocity(b2->getLinearVelocity() + impulses[i] * b2->getInverseMass());
-				b1->setAngularVelocity(b1->getAngularVelocity() - LynxMath::cross(r1_arr[i], impulses[i]) * inv_inert1);
-				b2->setAngularVelocity(b2->getAngularVelocity() + LynxMath::cross(r2_arr[i], impulses[i]) * inv_inert2);
-				
+				b1->applyImpulse(-impulses[i]);
+				b2->applyImpulse(impulses[i]);
+				b1->applyAngularImpulse(-impulses[i], r1_arr[i]);
+				b2->applyAngularImpulse(impulses[i], r2_arr[i]);
 			}
 		}
 	}
