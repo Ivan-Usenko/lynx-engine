@@ -1,4 +1,5 @@
 #pragma once
+#include <SFML/Graphics.hpp>
 #include "Engine/Types.hpp"
 #include "Physics/Collision/CollisionShapes.hpp"
 #include "Physics/Collision/Detection/AABB.hpp"
@@ -28,6 +29,8 @@ namespace lynx
 		float getInvInertia();
 		void setFriction(float friction);
 		float getFriction();
+		void setSprite(sf::Sprite* sprite);
+		sf::Sprite* getSprite();
 	private:
 		CollisionShape* m_collision_shape;
 		Vector2 m_linear_velocity;
@@ -37,6 +40,7 @@ namespace lynx
 		float m_restitution;
 		float m_friction;
 		Vector2 m_force;
+		sf::Sprite* m_sprite;
 
 		void calcInverseInertia();
 	};

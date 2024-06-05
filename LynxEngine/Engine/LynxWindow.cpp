@@ -1,4 +1,5 @@
 #include "LynxWindow.hpp"
+#include "Math/LynxMath.hpp"
 
 namespace lynx
 {
@@ -83,6 +84,22 @@ namespace lynx
 		this->draw(line, 2, sf::Lines);
 	}
 
+	void LynxWindow::drawVector(Vector2 origin, Vector2 dir, float length, sf::Color color)
+	{
+		sf::Vertex arrow[4];
+		for (sf::Vertex& v : arrow) v.color = color;
+
+		arrow[0].position = origin;
+		arrow[1].position = origin + dir * length;
+
+		Vector2 base = origin + dir * (length - 15.f);
+		arrow[2].position = base + Vector2(-dir.y, dir.x) * 5.f;
+		arrow[3].position = base + Vector2(dir.y, -dir.x) * 5.f;
+
+		this->draw(arrow, 2, sf::Lines);
+		this->draw(arrow + 1, 3, sf::Triangles);
+	}
+
 	void LynxWindow::drawLabel(std::string label, unsigned int char_size, Vector2 position, sf::Color color)
 	{
 		sf::Text text(label, m_default_font, char_size);
@@ -99,5 +116,15 @@ namespace lynx
 	sf::Font& LynxWindow::getDefaultFont()
 	{
 		return m_default_font;
+	}
+
+	void LynxWindow::setBackgroundColor(sf::Color bg_color)
+	{
+		m_bg_color = bg_color;
+	}
+
+	void LynxWindow::clear()
+	{
+		sf::RenderWindow::clear(m_bg_color);
 	}
 }

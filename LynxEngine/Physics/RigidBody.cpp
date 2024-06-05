@@ -11,6 +11,7 @@ namespace lynx
 		m_restitution = 1.f;
 		m_inverse_inertia = 0.f;
 		m_friction = 0.3f;
+		m_sprite = nullptr;
 	}
 
 	void RigidBody::setCollisionShape(CollisionShape* shape)
@@ -145,5 +146,15 @@ namespace lynx
 	float RigidBody::getFriction()
 	{
 		return m_friction;
+	}
+
+	void RigidBody::setSprite(sf::Sprite* sprite)
+	{
+		m_sprite = sprite;
+	}
+
+	sf::Sprite* RigidBody::getSprite()
+	{
+		return m_sprite;
 	}
 }

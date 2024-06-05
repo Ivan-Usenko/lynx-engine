@@ -14,6 +14,7 @@ namespace lynx
 		m_window.setFramerateLimit(240);
 		m_step_time = 1.f / 240.f;
 		setIterationsPerStep(10);
+		m_debug_mode = false;
 	}
 
 	LynxEngine* LynxEngine::getLynxEngine()
@@ -63,7 +64,6 @@ namespace lynx
 		// Drawing
 		m_window.clear();
 		drawBodies();
-		drawInterface();
 		m_window.display();
 
 		m_step_time = m_clock.restart().asSeconds();
@@ -107,6 +107,11 @@ namespace lynx
 			{
 				separateBodies(result);
 				Collider::findContactPoints(&result);
+				for (int i = 0; i < result.contact_count; i++)
+				{
+					auto p = std::pair<Vector2, Vector2>(result.contact[i], result.normal);
+				}
+					
 				resolveCollision(result);
 			}
 		}
@@ -142,29 +147,37 @@ namespace lynx
 		if (!m_cur_scene) return;
 		for (RigidBody* body : m_cur_scene->getBodies())
 		{
-			CollisionShape* shape = body->getCollisionShape();
-			if (!shape) continue;
-			CollisionShape::ShapeType type = shape->getType();
-			if (type == CollisionShape::Box)
+			sf::Sprite* sprite = body->getSprite();
+			if (sprite)
 			{
-				CollisionBox* box = (CollisionBox*)shape;
-				m_window.drawRectangle(body->getPosition().x, body->getPosition().y, box->getSize().x, box->getSize().y, body->getRotation());
+				sprite->setPosition(body->getPosition());
+				sprite->setRotation(body->getRotation());
+				sprite->setOrigin(sprite->getTextureRect().width / 2.f, sprite->getTextureRect().height / 2.f);
+				m_window.draw(*sprite);
 			}
-			else if (type == CollisionShape::Circle)
+
+			if (m_debug_mode)
 			{
-				CollisionCircle* circle = (CollisionCircle*)shape;
-				m_window.drawCircle(body->getPosition().x, body->getPosition().y, circle->getRadius(), body->getRotation());
+				CollisionShape* shape = body->getCollisionShape();
+				if (!shape) continue;
+				CollisionShape::ShapeType type = shape->getType();
+				if (type == CollisionShape::Box)
+				{
+					CollisionBox* box = (CollisionBox*)shape;
+					m_window.drawRectangle(body->getPosition().x, body->getPosition().y, box->getSize().x, box->getSize().y, body->getRotation());
+				}
+				else if (type == CollisionShape::Circle)
+				{
+					CollisionCircle* circle = (CollisionCircle*)shape;
+					m_window.drawCircle(body->getPosition().x, body->getPosition().y, circle->getRadius(), body->getRotation());
+				}
 			}
 		}
 	}
 
-	void LynxEngine::drawInterface()
+	void LynxEngine::enableDebugMode(bool debug_mode)
 	{
-		std::stringstream ss;
-		ss << "DEBUG\n";
-		ss << "Time step: " << std::fixed << std::setprecision(4) << getStepTime() << std::endl;
-		ss << "Bodies count: " << m_cur_scene->getBodies().size();
-		m_window.drawLabel(ss.str(), 15u);
+		m_debug_mode = debug_mode;
 	}
 
 	void LynxEngine::separateBodies(const CollisionResult result)
@@ -227,6 +240,10 @@ namespace lynx
 			// Apply normal impulse
 			for (int i = 0; i < result.contact_count; i++)
 			{
+				// Improve stacked boxes behavior
+				if (LynxMath::equalf(impulses[i].x, 0.f)) impulses[i].x = 0.f;
+				if (LynxMath::equalf(impulses[i].y, 0.f)) impulses[i].y = 0.f;
+
 				b1->applyImpulse(-impulses[i]);
 				b2->applyImpulse(impulses[i]);
 				b1->applyAngularImpulse(-impulses[i], r1_arr[i]);

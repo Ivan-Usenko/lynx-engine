@@ -1,5 +1,6 @@
 #include "Engine/LynxEngine.hpp"
 #include <random>
+#include "Math/LynxMath.hpp"
 
 int main()
 {
@@ -24,6 +25,7 @@ int main()
 		body->setInverseMass(1.f);
 		body->setCollisionShape(shape);
 		body->setRestitution(.2f);
+		body->setFriction(0.3f);
 		scene.addBody(body);
 	});
 
@@ -49,10 +51,41 @@ int main()
 	obstacle2->setPosition(0.f, 330.f);
 	scene.addBody(obstacle2);
 
+	sf::Texture texture;
+	texture.loadFromFile("test.png");
+	sf::Sprite sprite;
+	sprite.setTexture(texture);
+
+	lynx::RigidBody* player = new lynx::RigidBody();
+	player->setCollisionShape(new lynx::CollisionBox({ 25.f, 25.f }));
+	player->setPosition(100.f, 150.f);
+	player->setInverseMass(1.f);
+	player->setRestitution(.2f);
+	player->setSprite(&sprite);
+	scene.addBody(player);
+
+	engine->enableDebugMode(true);
+
+	float player_speed = 80.f;
+	float jump_force = 50.f;
+
+	window->addEventHandler(sf::Event::KeyPressed, [&](sf::Event e)
+		{
+			if (e.key.code == sf::Keyboard::Space)
+			{
+				player->applyImpulse(lynx::Vector2(0.f, -1.f) * jump_force);
+			}
+		});
+
 	// Main cycle
 	while (window->isOpen())
 	{
-		engine->step(engine->getStepTime() * 10.f);
+		float dt = engine->getStepTime();
+		lynx::Vector2 p_vel = player->getLinearVelocity();
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) player->setLinearVelocity(p_vel + lynx::Vector2(-1.f, 0.f) * player_speed * dt);
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) player->setLinearVelocity(p_vel + lynx::Vector2(1.f, 0.f) * player_speed * dt);
+
+		engine->step(dt * 10.f);
 	}
 
 	for (lynx::RigidBody* body : scene.getBodies())

@@ -15,6 +15,7 @@ namespace lynx
 		void step(float dt);
 		float getStepTime();
 		void setIterationsPerStep(int ips);
+		void enableDebugMode(bool debug_mode);
 		void shutDown();
 	private:
 		LynxEngine();
@@ -28,12 +29,13 @@ namespace lynx
 		float m_dt_coef;
 		std::list<std::pair<RigidBody*, RigidBody*>> m_collision_pairs;
 
+		bool m_debug_mode;
+
 		void broadCollisionPhase();
 		void narrowCollisionPhase();
 		void integrateAccel(float dt);
 		void integrateVelocity(float dt);
 		void drawBodies();
-		void drawInterface();
 		void separateBodies(const CollisionResult result);
 		void resolveCollision(const CollisionResult result);
 	};
