@@ -15,6 +15,8 @@ namespace lynx
 		m_step_time = 1.f / 240.f;
 		setIterationsPerStep(10);
 		m_debug_mode = false;
+
+		attachDrawingProc([&](LynxWindow* window) { drawBodies(); });
 	}
 
 	LynxEngine* LynxEngine::getLynxEngine()
@@ -63,7 +65,7 @@ namespace lynx
 
 		// Drawing
 		m_window.clear();
-		drawBodies();
+		if (m_drawing_proc) m_drawing_proc(&m_window);
 		m_window.display();
 
 		m_step_time = m_clock.restart().asSeconds();
@@ -173,6 +175,11 @@ namespace lynx
 				}
 			}
 		}
+	}
+
+	void LynxEngine::attachDrawingProc(std::function<void(LynxWindow*)> procedure)
+	{
+		m_drawing_proc = procedure;
 	}
 
 	void LynxEngine::enableDebugMode(bool debug_mode)
