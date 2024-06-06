@@ -1,7 +1,5 @@
 #include "LynxEngine.hpp"
 #include "Math/LynxMath.hpp"
-#include <iomanip>
-#include <sstream>
 #include <algorithm>
 
 namespace lynx
@@ -10,6 +8,7 @@ namespace lynx
 
 	LynxEngine::LynxEngine()
 	{
+		m_window.create(sf::VideoMode(800, 600), "Lynx Engine");
 		m_cur_scene = nullptr;
 		m_window.setFramerateLimit(240);
 		m_step_time = 1.f / 240.f;

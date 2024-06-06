@@ -1,6 +1,8 @@
 #include "Engine/LynxEngine.hpp"
 #include <random>
 #include "Math/LynxMath.hpp"
+#include <iomanip>
+#include <sstream>
 
 int main()
 {
@@ -30,26 +32,19 @@ int main()
 	});
 
 	lynx::RigidBody* ground = new lynx::RigidBody();
-	ground->setCollisionShape(new lynx::CollisionBox({200.f, 20.f}));
-	ground->setPosition(200.f, 400.f);
+	ground->setCollisionShape(new lynx::CollisionBox({400.f, 20.f}));
+	ground->setPosition(400.f, 600.f);
 	scene.addBody(ground);
 
 	lynx::RigidBody* obstacle = new lynx::RigidBody();
-	obstacle->setCollisionShape(new lynx::CollisionBox({ 80.f, 20.f }));
-	obstacle->setPosition(100.f, 200.f);
-	obstacle->setRotation(15.f);
+	obstacle->setCollisionShape(new lynx::CollisionBox({ 20.f, 300.f }));
+	obstacle->setPosition(0.f, 300.f);
 	scene.addBody(obstacle);
 
 	lynx::RigidBody* obstacle1 = new lynx::RigidBody();
-	obstacle1->setCollisionShape(new lynx::CollisionBox({ 100.f, 20.f }));
-	obstacle1->setPosition(350.f, 330.f);
-	obstacle1->setRotation(-50.f);
+	obstacle1->setCollisionShape(new lynx::CollisionBox({ 20.f, 300.f }));
+	obstacle1->setPosition(800.f, 300.f);
 	scene.addBody(obstacle1);
-
-	lynx::RigidBody* obstacle2 = new lynx::RigidBody();
-	obstacle2->setCollisionShape(new lynx::CollisionBox({ 20.f, 50.f }));
-	obstacle2->setPosition(0.f, 330.f);
-	scene.addBody(obstacle2);
 
 	sf::Texture texture;
 	texture.loadFromFile("test.png");
@@ -75,6 +70,15 @@ int main()
 			{
 				player->applyImpulse(lynx::Vector2(0.f, -1.f) * jump_force);
 			}
+		});
+
+	engine->attachDrawingProc([&](lynx::LynxWindow* window)
+		{
+			engine->drawBodies();
+	std::stringstream ss;
+	ss << "Time step: " << std::fixed << std::setprecision(4) << engine->getStepTime() << std::endl;
+	ss << "Body count: " << scene.getBodies().size();
+	window->drawLabel(ss.str(), 15u);
 		});
 
 	// Main cycle

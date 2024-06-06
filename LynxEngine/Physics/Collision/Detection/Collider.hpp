@@ -34,5 +34,7 @@ namespace lynx
 		static void findContactPointsCC(Transform* t1, CollisionCircle* c1, CollisionResult* result);
 		static void findContactPointsBB(Transform* t1, CollisionBox* b1, Transform* t2, CollisionBox* b2, CollisionResult* result);
 		static void findContactPointsCB(Transform* t1, CollisionCircle* c1, Transform* t2, CollisionBox* b2, CollisionResult* result);
+
+		Collider() {};
 	};
 }

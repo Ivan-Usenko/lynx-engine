@@ -18,3 +18,4 @@ namespace lynx
 		ShapeType m_type;
 	};
 }
+

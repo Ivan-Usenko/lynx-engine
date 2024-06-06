@@ -72,11 +72,13 @@ namespace lynx
 
 	float LynxMath::toRadians(float angle)
 	{
-		return angle * M_PI * 0.00555555555f;
+		// angle * M_PI / 180.f
+		return angle * M_PI * 0.00555555555f; 
 	}
 
 	float LynxMath::toDegrees(float angle)
 	{
+		// angle * 180.f / M_PI
 		return angle * 180.f * M_1_PI;
 	}
 
@@ -88,11 +90,5 @@ namespace lynx
 	bool LynxMath::equalf(Vector2 v1, Vector2 v2, float e)
 	{
 		return equalf(v1.x, v2.x, e) && equalf(v1.y, v2.y, e);
-	}
-
-	float LynxMath::roundf(float x, int precision)
-	{
-		float mult = powf(10.f, (float)precision);
-		return static_cast<float>(static_cast<int>(x * mult)) / mult;
 	}
 }
