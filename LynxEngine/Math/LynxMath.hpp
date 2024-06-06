@@ -24,5 +24,7 @@ namespace lynx
 		static bool equalf(float f1, float f2, float e = DEFAULT_EPSILON);
 		static bool equalf(Vector2 v1, Vector2 v2, float e = DEFAULT_EPSILON);
 		static float roundf(float x, int precision);
+	private:
+		LynxMath() {};
 	};
 }
