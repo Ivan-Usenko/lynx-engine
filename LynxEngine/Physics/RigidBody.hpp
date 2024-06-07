@@ -32,7 +32,6 @@ namespace lynx
 		void setSprite(sf::Sprite* sprite);
 		sf::Sprite* getSprite();
 	private:
-		CollisionShape* m_collision_shape;
 		Vector2 m_linear_velocity;
 		float m_angular_velocity;
 		float m_inverse_mass;
@@ -40,6 +39,7 @@ namespace lynx
 		float m_restitution;
 		float m_friction;
 		Vector2 m_force;
+		CollisionShape* m_collision_shape;
 		sf::Sprite* m_sprite;
 
 		void calcInverseInertia();

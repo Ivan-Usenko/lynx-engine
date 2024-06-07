@@ -139,6 +139,8 @@ namespace lynx
 		Vector2 cp = LynxMath::clamp(c_loc_pos, min, max);
 		Vector2 dir = cp - c_loc_pos;
 		float dist_sq = LynxMath::magnitudeSq(dir);
+
+		// If circle overlap the box
 		if (dist_sq < c1->getRadius() * c1->getRadius())
 		{
 			if (result)

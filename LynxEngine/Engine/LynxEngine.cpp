@@ -78,6 +78,7 @@ namespace lynx
 
 	void LynxEngine::broadCollisionPhase()
 	{
+		if (!m_cur_scene) return;
 		std::list<RigidBody*> bodies = m_cur_scene->getBodies();
 		for (auto i = bodies.begin(); i != bodies.end(); i++)
 		{
@@ -99,6 +100,7 @@ namespace lynx
 
 	void LynxEngine::narrowCollisionPhase()
 	{
+		if (!m_cur_scene) return;
 		for (auto& pair : m_collision_pairs)
 		{
 			RigidBody* b1 = pair.first;
@@ -107,12 +109,7 @@ namespace lynx
 			if (Collider::isBodiesCollide(b1, b2, &result))
 			{
 				separateBodies(result);
-				Collider::findContactPoints(&result);
-				for (int i = 0; i < result.contact_count; i++)
-				{
-					auto p = std::pair<Vector2, Vector2>(result.contact[i], result.normal);
-				}
-					
+				Collider::findContactPoints(&result);					
 				resolveCollision(result);
 			}
 		}
@@ -126,9 +123,9 @@ namespace lynx
 		{
 			if (body->getInverseMass() > 0.f)
 			{
-				Vector2 vel = body->getForce() * body->getInverseMass();
-				if (m_cur_scene->isGravityEnabled()) vel += m_cur_scene->getGravity();
-				body->setLinearVelocity(body->getLinearVelocity() + vel * dt);
+				Vector2 acc = body->getForce() * body->getInverseMass();
+				if (m_cur_scene->isGravityEnabled()) acc += m_cur_scene->getGravity();
+				body->setLinearVelocity(body->getLinearVelocity() + acc * dt);
 			}
 		}
 	}
