@@ -1,8 +1,8 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include "Engine/Types.hpp"
-#include "Physics/Collision/CollisionShapes.hpp"
-#include "Physics/Collision/Detection/AABB.hpp"
+#include "Collision/CollisionShapes.hpp"
+#include "Collision/Detection/AABB.hpp"
 
 namespace lynx
 {

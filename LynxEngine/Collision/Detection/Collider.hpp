@@ -1,5 +1,5 @@
 #pragma once
-#include "Physics/Collision/CollisionShapes.hpp"
+#include "Collision/CollisionShapes.hpp"
 #include "Engine/Types.hpp"
 #include "Engine/LynxWindow.hpp"
 #include "AABB.hpp"

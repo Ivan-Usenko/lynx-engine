@@ -1,8 +1,8 @@
 #pragma once
 #include "Engine/LynxWindow.hpp"
 #include "Engine/Scene.hpp"
-#include "Physics/Collision/CollisionShapes.hpp"
-#include "Physics/Collision/Detection/Collider.hpp"
+#include "Collision/CollisionShapes.hpp"
+#include "Collision/Detection/Collider.hpp"
 
 namespace lynx
 {

@@ -140,11 +140,11 @@
     <ClCompile Include="Engine\Scene.cpp" />
     <ClCompile Include="Math\LynxMath.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Physics\Collision\Detection\AABB.cpp" />
-    <ClCompile Include="Physics\Collision\Detection\Collider.cpp" />
-    <ClCompile Include="Physics\Collision\Shapes\CollisionBox.cpp" />
-    <ClCompile Include="Physics\Collision\Shapes\CollisionCircle.cpp" />
-    <ClCompile Include="Physics\Collision\Shapes\CollisionShape.cpp" />
+    <ClCompile Include="Collision\Detection\AABB.cpp" />
+    <ClCompile Include="Collision\Detection\Collider.cpp" />
+    <ClCompile Include="Collision\Shapes\CollisionBox.cpp" />
+    <ClCompile Include="Collision\Shapes\CollisionCircle.cpp" />
+    <ClCompile Include="Collision\Shapes\CollisionShape.cpp" />
     <ClCompile Include="Physics\RigidBody.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -153,12 +153,12 @@
     <ClInclude Include="Engine\Scene.hpp" />
     <ClInclude Include="Engine\Types.hpp" />
     <ClInclude Include="Math\LynxMath.hpp" />
-    <ClInclude Include="Physics\Collision\Detection\AABB.hpp" />
-    <ClInclude Include="Physics\Collision\Detection\Collider.hpp" />
-    <ClInclude Include="Physics\Collision\CollisionShapes.hpp" />
-    <ClInclude Include="Physics\Collision\Shapes\CollisionBox.hpp" />
-    <ClInclude Include="Physics\Collision\Shapes\CollisionCircle.hpp" />
-    <ClInclude Include="Physics\Collision\Shapes\CollisionShape.hpp" />
+    <ClInclude Include="Collision\Detection\AABB.hpp" />
+    <ClInclude Include="Collision\Detection\Collider.hpp" />
+    <ClInclude Include="Collision\CollisionShapes.hpp" />
+    <ClInclude Include="Collision\Shapes\CollisionBox.hpp" />
+    <ClInclude Include="Collision\Shapes\CollisionCircle.hpp" />
+    <ClInclude Include="Collision\Shapes\CollisionShape.hpp" />
     <ClInclude Include="Physics\RigidBody.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

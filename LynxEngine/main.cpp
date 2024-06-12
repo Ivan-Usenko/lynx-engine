@@ -11,7 +11,6 @@ int main()
 	engine->setCurrentScene(&scene);
 
 	lynx::LynxWindow* window = engine->getWindow();
-	window->create(sf::VideoMode(400.f, 100.f), "LynxWindow");
 	window->addEventHandler(sf::Event::MouseButtonPressed, [&](sf::Event e) {
 		srand(time(0));
 		lynx::RigidBody* body = new lynx::RigidBody();
