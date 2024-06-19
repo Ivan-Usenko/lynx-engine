@@ -29,6 +29,11 @@ namespace lynx
 		m_cur_scene = scene;
 	}
 
+	Scene* LynxEngine::getCurrentScene()
+	{
+		return m_cur_scene;
+	}
+
 	void LynxEngine::shutDown()
 	{
 		if (m_instance) delete m_instance;

@@ -12,6 +12,7 @@ namespace lynx
 		static LynxEngine* getLynxEngine();
 		LynxWindow* getWindow();
 		void setCurrentScene(Scene* scene);
+		Scene* getCurrentScene();
 		void step(float dt);
 		float getStepTime();
 		void setIterationsPerStep(int ips);

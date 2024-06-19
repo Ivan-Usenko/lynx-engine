@@ -33,7 +33,7 @@ namespace lynx
 				if (st2 == CollisionShape::Circle)
 				{
 					float r = Collider::intersectCircleBox(t2, (CollisionCircle*)s2, t1, (CollisionBox*)s1, result);
-					result->normal = -result->normal;
+					if (result) result->normal = -result->normal;
 					is_collide = r;
 				}
 				else if (st2 == CollisionShape::Box)
